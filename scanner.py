@@ -11,6 +11,7 @@ class Scan:
     letter = ['a', 'A', 'b','B', 'C', 'c', 'd','D', 'E', 'e','F', 'f','G', 'g','H', 'h','I' 'i','J', 'j','K', 'k','L', 'l','M', 'm','N', 'n','O', 'o','P', 'p','Q', 'q','R', 'r', 'S', 's','T', 't','U', 'u',
                 'v', 'V', 'W','w','X', 'x', 'Y', 'y', 'Z', 'z']
     token_types = [digit, letter, ID, Keyword, Symbol, Whitespace]
+    states = [num, ide, alphabet, other, comment, symb]
 
 
     counter = 0
@@ -20,11 +21,9 @@ class Scan:
     state = 'start'
 
 
-    # lexical_errors = open('lexical_errors.txt', 'r').read()
-    # symbol_table = open('lexical_errors.txt', 'r').read()
-    # tokens = open('tokens.txt', 'r').read()
 
-    file_cap = len(program)
+
+
 
 
     def __init__(self, program):
@@ -34,17 +33,27 @@ class Scan:
         self.program = open('/Users/macbookpro/PycharmProjects/compiler_project/compiler_project/T01/input.txt', 'r').read(1)
         self.program=program
         self.loc = -1
+        self.file_cap = len(program)
+
+        self.lexical_errors = open('lexical_errors.txt', 'r').read()
+        self.symbol_table = open('lexical_errors.txt', 'r').read()
+        self.token_file = open('tokens.txt', 'r').read()
 
 
-
+    def lookahead_chr(self):
+        if self.loc + 1 >= self.file_cap:
+            return '\0'
+        return self.program[self.loc+1]
 
 
     def next_char(self):
-    self.loc += 1
-    if self.loc>=self.file_cap:
-        chr = '\0'
-    else:
-        chr = self.program[self.loc]
+        self.loc += 1
+        if self.loc>=self.file_cap:
+            chr = '\0'
+            return chr
+        else:
+            chr = self.program[self.loc]
+            return chr
 
 
 #####        return types
@@ -60,6 +69,13 @@ class Scan:
         if 'a'<= chr<= 'z' or 'A'<= chr <='Z':
             return "letter"
 
+    def is_comment(self,chr):
+        if chr == '/':
+            return "Comment"
+
+
+
+
 ######
 
 
@@ -69,10 +85,9 @@ class Scan:
 
 
 
-    # def Ignore_whitespace():
-    #         while next_char() == ' ' or next_char() == '\t' or next_char() == '\r':
-    #             next_char()
-
+    def Ignore_whitespace(self):         # for skipping white spaces
+        while self.loc in self.whitespace:
+            self.next_char()
 
 
 
@@ -85,6 +100,11 @@ class Scan:
 
 
          if state == 'start':   #write if for every state after start, based on DFA
+
+             if self.is_digit(chr) == "digit":
+
+
+
 
 
 
