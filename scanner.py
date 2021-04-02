@@ -15,7 +15,8 @@ class Scan:
 
     counter = 0
     input = 0
-    chr = " "
+    array = ""
+
     state = 'start'
 
 
@@ -32,30 +33,37 @@ class Scan:
         self.lex_error = []
         self.program = open('/Users/macbookpro/PycharmProjects/compiler_project/compiler_project/T01/input.txt', 'r').read(1)
         self.program=program
-
-
-
-
-
+        self.loc = -1
 
 
 
 
 
     def next_char(self):
+    self.loc += 1
+    if self.loc>=self.file_cap:
+        chr = '\0'
+    else:
+        chr = self.program[self.loc]
 
 
-        chr = self.program
-        if chr == '\n':
-           self.line_num+=1
+#####        return types
+    def is_symbol(self,chr):
+        if chr in self.symbol:
+            return "symbol"
 
+    def is_digit(self, chr):
+        if '0'<= chr <= '9':
+            return "digit"
 
-        return chr
+    def is_letter(self,chr):
+        if 'a'<= chr<= 'z' or 'A'<= chr <='Z':
+            return "letter"
 
+######
 
 
     def do_whitespace(self, whitespace):
-
         if whitespace == '\n':
             self.line_num+=1
 
@@ -68,40 +76,20 @@ class Scan:
 
 
 
-
-
-
-
-
-
-    #
-    # def get_next_token(str):    # return (Token Type, Token String)
-    #
-    #
-    #     while(True):
-    #
-    #
-
-
-
     def dfa_navigation(self, chr):
 
-         if self.counter>= self.file_cap:
+         self.next_char()
 
-             return (False, (line_num))
-
-         else:
-             if self.state == 'error':
-                 self.counter-=1
-
-             chr = input[self.counter]
 
          self.counter+=1
 
 
-         if state == 'start':
+         if state == 'start':   #write if for every state after start, based on DFA
 
-#              write if for every state after start
+
+
+
+
 
 
 
