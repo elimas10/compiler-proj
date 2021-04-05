@@ -5,17 +5,8 @@ class Scanner:
     keyword = ['if', 'else', 'void', 'int', 'while', 'break', 'switch', 'default', 'case', 'return', 'for']
     symbol = [';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-','<', '=', '*']
     whitespace = [' ', '\n', '\r', '\t', '\v', '\f']
-    # letter = ['a', 'A', 'b', 'B', 'C', 'c', 'd', 'D', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h', 'I' 'i', 'J', 'j', 'K',
-    #           'k', 'L', 'l', 'M', 'm', 'N', 'n', 'O', 'o', 'P', 'p', 'Q', 'q', 'R', 'r', 'S', 's', 'T', 't', 'U', 'u',
-    #           'v', 'V', 'W', 'w', 'X', 'x', 'Y', 'y', 'Z', 'z']
-    #token_types = ['digit', 'letter', 'ID', 'Keyword', 'Symbol', 'Whitespace']
-    #states = ['start','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','num', 'ide', 'alphabet', 'other', 'comment', 'symb']
-
-    error_types=['Invalid input','Unmatched comment' ,'Unclosed comment']
+    error_types=['Invalid input','Unmatched comment' ,'Unclosed comment','Invalid number']
     symbol_table=[]
-    # final_states=['2','4','5','7','9','c','f']
-    # counter = 0
-    # input = 0
     array = ""
     state ='0'
 
@@ -52,16 +43,16 @@ class Scanner:
 
             if self.program[self.loc]=='\n':
                 if len(temp_arr):
-                    self.array += str(self.line_num) + ". " + temp_arr+"\n"
+                    self.array += str(self.line_num) + ".\t" + temp_arr+"\n"
                     temp_arr=""
                 self.line_num+=1
 
             if self.state=='2':
 
                 if token in self.keyword:
-                    temp_arr+="( KEYWORD,"+token+" )"
+                    temp_arr+="(KEYWORD, "+token+") "
                 else:
-                    temp_arr +="( ID,"+ token+ " )"
+                    temp_arr +="(ID, "+ token+ ") "
 
                 if token not in self.symbol_table:
                     self.symbol_table.append(token)
@@ -70,26 +61,26 @@ class Scanner:
             elif self.state=='4':
 
                 if self.check_NUM(token):
-                    temp_arr +="( NUM, "+token+" )"
+                    temp_arr +="(NUM, "+token+") "
                 else:
                     self.lex_error.append([self.line_num,token,"Invalid number"])
                 self.state='0'
 
-            elif self.state == '5' or self.state=='7' or self.state == '9':
-                temp_arr +="( SYMBOL, "+ self.program[self.start_loc:self.loc+1]+" )"
+            elif self.state == '5' or self.state=='7':
+                temp_arr +="(SYMBOL, "+ self.program[self.start_loc:self.loc+1]+") "
                 self.state='0'
                 self.loc+=1
-
+            elif self.state == '9':
+                temp_arr += "(SYMBOL, " + token + ") "
+                self.state = '0'
+                self.loc += 1
             elif self.state=='c':
-                #temp_arr +="( COMMENT, "+ token+" )"
                 self.state='0'
                 self.loc+=1
 
             elif self.state == 'f':
-                #print("whitespace recognized")
                 self.state='0'
                 self.loc+=1
-                #print("( WHITESPACE, ", token," )")
             elif self.state in self.error_types:
                 self.lex_error.append([self.line_num, self.program[self.start_loc:self.loc+1], self.state])
                 self.state='0'
@@ -99,17 +90,31 @@ class Scanner:
 
 
 
-        f = open("tokens.txt", "w")
-        f.write(self.array)
-        f.close()
+        # create files
+        f1 = open("tokens.txt", "w")
+        f1.write(self.array)
+        f1.close()
+        #
+        error_string=""
+        if len(self.lex_error):
+            for error in self.lex_error:
+                error_string+=str(error[0])+".\t("+ error[1]+", "+error[2]+")\n"
+        else:
+            error_string="There is no lexical error."
+        f2 = open("lexical_errors.txt", "w")
+        f2.write(error_string)
+        f2.close()
+        #
+        # f3 = open("symbol_table.txt", "w")
+        # f3.write(self.array)
+        # f3.close()
         print(self.symbol_table)
-        print(self.lex_error)
 
 
-    def lookahead_chr(self):
-        if self.loc + 1 >= self.file_cap:
-            return '\0'
-        return self.program[self.loc + 1]
+    # def lookahead_chr(self):
+    #     if self.loc + 1 >= self.file_cap:
+    #         return '\0'
+    #     return self.program[self.loc + 1]
 
     # def next_char(self):
     #     self.loc += 1
