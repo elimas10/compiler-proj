@@ -1,13 +1,14 @@
 # elnaz masoumi 96106106
 # saeede vahedi 96102664
 
+from compare import *
 class Scanner:
     keyword = ['if', 'else', 'void', 'int', 'while', 'break', 'switch', 'default', 'case', 'return', 'for']
     symbol = [';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-','<', '=', '*']
     whitespace = [' ', '\n', '\r', '\t', '\v', '\f']
     error_types=['Invalid input','Unmatched comment' ,'Unclosed comment','Invalid number']
     symbol_table=[]
-    array = ""
+    tokens = ""
     state ='0'
 
     def __init__(self, input):
@@ -15,8 +16,8 @@ class Scanner:
         self.line_num = 1
         self.token = []
         self.lex_error = []
-        self.program = open(input, 'r').read()
-
+        self.program = open(input, 'r').read()+"\n"
+        self.comment_start_line=None
         self.start_loc=0
         self.loc =0
         self.file_cap = len(self.program)
@@ -32,48 +33,45 @@ class Scanner:
 
     def get_next_token(self):
 
-        temp_arr=""
+        temp_tokens=""
 
         while(self.loc<self.file_cap):
 
+            #print(self.line_num , self.state,self.program[self.loc] )
             if self.state=='0':
                 self.start_loc=self.loc
 
             self.dfa_navigation(self.program[self.loc])
 
-            token=self.program[self.start_loc:self.loc]
+            token=self.Ignore_whitespace(self.program[self.start_loc:self.loc])
 
-            if self.program[self.loc]=='\n':
-                if len(temp_arr):
-                    self.array += str(self.line_num) + ".\t" + temp_arr+"\n"
-                    temp_arr=""
-                self.line_num+=1
+
 
             if self.state=='2':
 
                 if token in self.keyword:
-                    temp_arr+="(KEYWORD, "+token+") "
+                    temp_tokens+="(KEYWORD, "+token+") "
                 else:
-                    temp_arr +="(ID, "+ token+ ") "
+                    temp_tokens +="(ID, "+ token+ ") "
 
                 if token not in self.symbol_table:
                     self.symbol_table.append(token)
                 self.state='0'
 
             elif self.state=='4':
-
-                if self.check_NUM(token):
-                    temp_arr +="(NUM, "+token+") "
-                else:
-                    self.lex_error.append([self.line_num,token,"Invalid number"])
+                #
+                # if self.check_NUM(token):
+                temp_tokens +="(NUM, "+token+") "
+                # else:
+                #     self.lex_error.append([self.line_num,token,"Invalid number"])
                 self.state='0'
 
             elif self.state == '5' or self.state=='7':
-                temp_arr +="(SYMBOL, "+ self.program[self.start_loc:self.loc+1]+") "
+                temp_tokens +="(SYMBOL, "+ self.program[self.start_loc:self.loc+1]+") "
                 self.state='0'
                 self.loc+=1
             elif self.state == '9':
-                temp_arr += "(SYMBOL, " + token + ") "
+                temp_tokens += "(SYMBOL, " + token + ") "
                 self.state = '0'
                 self.loc += 1
             elif self.state=='c':
@@ -84,23 +82,43 @@ class Scanner:
                 self.state='0'
                 self.loc+=1
             elif self.state in self.error_types:
-                self.lex_error.append([self.line_num, self.program[self.start_loc:self.loc+1], self.state])
+                if self.state=='Unclosed comment':
+                    self.lex_error.append([self.comment_start_line, self.program[self.start_loc:self.loc + 1][0:7]+"...", self.state])
+                else:
+                    self.lex_error.append([self.line_num, self.program[self.start_loc:self.loc+1], self.state])
                 self.state='0'
                 self.loc += 1
             else:
                 self.loc+=1
 
+            if self.program[self.loc-1]=='\n':
+                if len(temp_tokens):
+                    #(temp_tokens)
+                    self.tokens += str(self.line_num) + ".\t" + temp_tokens[:-1]+"\n"
+                    temp_tokens=""
+                self.line_num+=1
+
 
 
         # create files
         f1 = open("tokens.txt", "w")
-        f1.write(self.array)
+        f1.write(self.tokens[:-1])
         f1.close()
         #
         error_string=""
+        last_line=0
         if len(self.lex_error):
             for error in self.lex_error:
-                error_string+=str(error[0])+".\t("+ error[1]+", "+error[2]+")\n"
+                error[1]=self.Ignore_whitespace(error[1])
+                if not error[0]==last_line:
+                    if not last_line==0:
+                        error_string+="\n"
+                    error_string+=str(error[0])+".\t("+ error[1]+", "+error[2]+")"
+                    last_line=error[0]
+                else:
+                    error_string+=" ("+ error[1]+", "+error[2]+")"
+
+
         else:
             error_string="There is no lexical error."
         f2 = open("lexical_errors.txt", "w")
@@ -113,7 +131,7 @@ class Scanner:
         for symbol in self.symbol_table:
             table+=str(counter)+".\t"+symbol+"\n"
             counter+=1
-        f3.write(table)
+        f3.write(table[:-1])
         f3.close()
 
     # def lookahead_chr(self):
@@ -121,16 +139,12 @@ class Scanner:
     #         return '\0'
     #     return self.program[self.loc + 1]
 
-    # def next_char(self):
-    #     self.loc += 1
-    #     if self.loc >= self.file_cap:
-    #         chr = '\0'
-    #         return chr
-    #     else:
-    #         chr = self.program[self.loc]
-    #         return chr
 
-    #####        return types
+    def is_valid_char(self,chr):
+
+        if self.is_digit(chr) or self.is_letter(chr) or self.is_whitespace(chr) or self.is_symbol(chr) or self.is_comment(chr):
+            return True
+        return False
 
     def is_symbol(self, chr):
         if chr in self.symbol:
@@ -152,15 +166,11 @@ class Scanner:
         if chr == '/':
             return True
 
-    ######
+    def Ignore_whitespace(self,input):  # for skipping white spaces
 
-    # def do_whitespace(self, whitespace):
-    #     if whitespace == '\n':
-    #         self.line_num += 1
-
-    # def Ignore_whitespace(self):  # for skipping white spaces
-    #     while self.loc in self.whitespace:
-    #         self.next_char()
+        for whitespace in self.whitespace[1:]:
+            input= input.replace(whitespace, '')
+        return input
 
     def dfa_navigation(self, chr):
 
@@ -186,14 +196,17 @@ class Scanner:
         elif self.state=='1':
 
             if not (self.is_digit(chr) or self.is_letter(chr)):
-                if chr=="!":
+                if not self.is_valid_char(chr):
                     self.state='Invalid input'
                 else:
+                    #print("state 2")
                     self.state='2'
             # else state 1
         # elif self.state=='2':
         #     accept
         elif self.state=='3':
+            if self.is_letter(chr):
+                self.state='Invalid number'
             if not (self.is_digit(chr) or self.is_letter(chr)):
                 self.state='4'
             # if digit state=3
@@ -217,8 +230,12 @@ class Scanner:
         elif self.state=='a':
             if chr=="/":
                 self.state='b'
+                self.comment_start_line=self.line_num
             elif chr=="*":
+                self.comment_start_line=self.line_num
                 self.state='d'
+            else:
+                self.state='Invalid input'
         elif self.state=='b':
             if chr=="\n":
                 self.state='c'
@@ -239,7 +256,7 @@ class Scanner:
 
 
 
-
-
 scanner =Scanner('./PA1_sample_programs/T01/input.txt')
 scanner.get_next_token()
+compare(1)
+
