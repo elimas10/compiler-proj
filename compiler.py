@@ -20,6 +20,8 @@ class Scanner:
         self.start_loc=0
         self.loc =0
         self.file_cap = len(self.program)
+        for word in self.keyword:
+            self.symbol_table.append(word)
 
     def check_NUM(self,num):
 
@@ -105,11 +107,14 @@ class Scanner:
         f2.write(error_string)
         f2.close()
         #
-        # f3 = open("symbol_table.txt", "w")
-        # f3.write(self.array)
-        # f3.close()
-        print(self.symbol_table)
-
+        table=""
+        f3 = open("symbol_table.txt", "w")
+        counter=1
+        for symbol in self.symbol_table:
+            table+=str(counter)+".\t"+symbol+"\n"
+            counter+=1
+        f3.write(table)
+        f3.close()
 
     # def lookahead_chr(self):
     #     if self.loc + 1 >= self.file_cap:
