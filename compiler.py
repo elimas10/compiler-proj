@@ -1,8 +1,8 @@
 # elnaz masoumi 96106106
 # saeede vahedi 96102664
 
-from compare import *
 class Scanner:
+
     keyword = ['if', 'else', 'void', 'int', 'while', 'break', 'switch', 'default', 'case', 'return', 'for']
     symbol = [';', ':', ',', '[', ']', '(', ')', '{', '}', '+', '-','<', '=', '*']
     whitespace = [' ', '\n', '\r', '\t', '\v', '\f']
@@ -24,85 +24,89 @@ class Scanner:
         for word in self.keyword:
             self.symbol_table.append(word)
 
-    def check_NUM(self,num):
-
-        for digit in num:
-            if not self.is_digit(digit):
-                return False
-        return True
 
     def get_next_token(self):
 
-        temp_tokens=""
-
         while(self.loc<self.file_cap):
 
-            #print(self.line_num , self.state,self.program[self.loc] )
-            if self.state=='0':
-                self.start_loc=self.loc
+            result=None
+            if self.state == '0':
+                self.start_loc = self.loc
 
             self.dfa_navigation(self.program[self.loc])
 
-            token=self.Ignore_whitespace(self.program[self.start_loc:self.loc])
+            token = self.Ignore_whitespace(self.program[self.start_loc:self.loc])
 
-
-
-            if self.state=='2':
+            if self.state == '2':
 
                 if token in self.keyword:
-                    temp_tokens+="(KEYWORD, "+token+") "
+                    result= ("KEYWORD", token )
                 else:
-                    temp_tokens +="(ID, "+ token+ ") "
+                    result=("ID", token)
 
                 if token not in self.symbol_table:
                     self.symbol_table.append(token)
-                self.state='0'
 
-            elif self.state=='4':
-                #
-                # if self.check_NUM(token):
-                temp_tokens +="(NUM, "+token+") "
-                # else:
-                #     self.lex_error.append([self.line_num,token,"Invalid number"])
-                self.state='0'
+                self.state = '0'
 
-            elif self.state == '5' or self.state=='7':
-                temp_tokens +="(SYMBOL, "+ self.program[self.start_loc:self.loc+1]+") "
-                self.state='0'
-                self.loc+=1
-            elif self.state == '9':
-                temp_tokens += "(SYMBOL, " + token + ") "
+            elif self.state == '4':
+                result = ("NUM", token)
+                self.state = '0'
+
+            elif self.state == '5' or self.state == '7':
+                result = ("SYMBOL", self.program[self.start_loc:self.loc + 1])
                 self.state = '0'
                 self.loc += 1
-            elif self.state=='c':
-                self.state='0'
-                self.loc+=1
+            elif self.state == '9':
+                result = ("SYMBOL", token)
+                self.state = '0'
+                self.loc += 1
+            elif self.state == 'c':
+                self.state = '0'
+                self.loc += 1
 
             elif self.state == 'f':
-                self.state='0'
-                self.loc+=1
+                self.state = '0'
+                self.loc += 1
             elif self.state in self.error_types:
-                if self.state=='Unclosed comment':
-                    self.lex_error.append([self.comment_start_line, self.program[self.start_loc:self.loc + 1][0:7]+"...", self.state])
+                if self.state == 'Unclosed comment':
+                    self.lex_error.append(
+                        [self.comment_start_line, self.program[self.start_loc:self.loc + 1][0:7] + "...", self.state])
                 else:
-                    self.lex_error.append([self.line_num, self.program[self.start_loc:self.loc+1], self.state])
-                self.state='0'
+                    self.lex_error.append([self.line_num, self.program[self.start_loc:self.loc + 1], self.state])
+                self.state = '0'
                 self.loc += 1
             else:
-                self.loc+=1
+                self.loc += 1
 
-            if self.program[self.loc-1]=='\n':
-                if len(temp_tokens):
-                    #(temp_tokens)
-                    self.tokens += str(self.line_num) + ".\t" + temp_tokens[:-1]+"\n"
-                    temp_tokens=""
-                self.line_num+=1
+            if self.program[self.loc-1] == '\n':
+                self.line_num += 1
 
+            if not result==None:
+                return result
+
+
+    def scan(self):
+
+        temp_last_line=0
+        while (self.loc < self.file_cap):
+
+            line_before_call_func=self.line_num
+            next_token=self.get_next_token()
+
+
+            if not next_token==None:
+                temp_tokens = " "+str(next_token)
+                if not self.line_num==temp_last_line:
+                    self.tokens += "\n"+str(self.line_num) + ".\t" + temp_tokens.replace("'","")[1:]
+                else:
+                    self.tokens+=temp_tokens.replace("'","")
+                temp_last_line=self.line_num
 
 
         # create files
         f1 = open("tokens.txt", "w")
-        f1.write(self.tokens[:-1])
+        f1.write(self.tokens[1:])
         f1.close()
         #
         error_string=""
@@ -134,10 +138,6 @@ class Scanner:
         f3.write(table[:-1])
         f3.close()
 
-    # def lookahead_chr(self):
-    #     if self.loc + 1 >= self.file_cap:
-    #         return '\0'
-    #     return self.program[self.loc + 1]
 
 
     def is_valid_char(self,chr):
@@ -199,34 +199,22 @@ class Scanner:
                 if not self.is_valid_char(chr):
                     self.state='Invalid input'
                 else:
-                    #print("state 2")
                     self.state='2'
-            # else state 1
-        # elif self.state=='2':
-        #     accept
         elif self.state=='3':
             if self.is_letter(chr):
                 self.state='Invalid number'
             if not (self.is_digit(chr) or self.is_letter(chr)):
                 self.state='4'
-            # if digit state=3
-        # elif self.state=='4':
-        #     accept
-        # accept
         elif self.state=='6':
             if chr=="=":
                 self.state='7'
             else:
                 self.state='9'
-        # elif self.state=='7':
-        #     accept
         elif self.state=='8':
             if not chr=='/':
                 self.state='9'
             else:
                 self.state="Unmatched comment"
-        # elif self.state=='9':
-        #     accept
         elif self.state=='a':
             if chr=="/":
                 self.state='b'
@@ -239,8 +227,6 @@ class Scanner:
         elif self.state=='b':
             if chr=="\n":
                 self.state='c'
-        # elif self.state=='c':
-        #     accept
         elif self.state=='d':
             if chr=="*":
                 self.state='e'
@@ -251,12 +237,9 @@ class Scanner:
                 self.state='c'
             elif not chr=="*":
                 self.state='d'
-        # elif self.state=='f':
-        #     accept
 
 
 
-scanner =Scanner('./PA1_sample_programs/T01/input.txt')
-scanner.get_next_token()
-compare(1)
 
+scanner =Scanner('./input.txt')
+scanner.scan()
