@@ -1,7 +1,7 @@
 from compiler import Scanner
 import First
 import Follow
-from anytree import Node, RenderTree
+
 
 class Parser:
 
