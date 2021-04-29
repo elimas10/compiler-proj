@@ -16,13 +16,16 @@ class Scanner:
         self.line_num = 1
         self.token = []
         self.lex_error = []
-        self.program = open(input, 'r').read()+"$"
+        self.program = open(input, 'r').read()+"\n"
+
         self.comment_start_line=None
         self.start_loc=0
         self.loc =0
         self.file_cap = len(self.program)
         for word in self.keyword:
             self.symbol_table.append(word)
+
+        self.end_of_file=False
 
 
     def get_next_token(self):
@@ -84,6 +87,13 @@ class Scanner:
 
             if not result==None:
                 return result
+
+        if self.loc==self.file_cap:
+            self.loc+=1
+            return ('$')
+
+
+
 
 
     def scan(self):
@@ -239,7 +249,10 @@ class Scanner:
                 self.state='d'
 
 
-
-
 # scanner =Scanner('./input.txt')
+
+# temp=scanner.get_next_token()
+# while(temp!=None):
+#     print(temp)
+#     temp=scanner.get_next_token()
 # scanner.scan()
