@@ -59,7 +59,7 @@ class Parser:
             print("")
         ## handle tree
         else:
-            print("error")
+            print("illegal error")
             self.next_token()
             self.Declaration_list_sub(node)
 
