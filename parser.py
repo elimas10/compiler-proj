@@ -341,6 +341,146 @@ class Parser:
                 print("error")
 
 
+    def Param_list_void_abtar_sub(self):
+        if self.lookahead == 'ID':
+            # node
+            self.match('ID')
+            # call subs of param prime & param list
+        elif self.lookahead in follow['Param-list-void-abtar']:
+            # node
+        elif self.lookahead == '$':
+            # error end of file + term
+
+        else:
+            # error
+            self.next_token()
+            self.Param_list_void_abtar_sub()
+
+
+    def Param_list_sub(self):
+        if self.lookahead == ',':
+            # node
+            self.match(',')
+            self.Param_sub()
+            self.Param_list_sub()
+        elif self.lookahead in follow['Param-list']:
+            # node
+        elif self.lookahead == '$':
+    # error end of file + term
+        else:
+            # error
+            self.next_token()
+            self.Param_list_sub()
+
+
+    def Param_sub(self):
+        if self.lookahead in first['Declaration-initial']:
+            # node
+            self.Declaration_initial_sub()
+            self.Param_prime_sub()
+
+        elif self.lookahead in follow['Param']:
+            # error
+        elif self.lookahead == '$':
+            # error + termn
+        else:
+            # error
+            self.next_token()
+            self.Params_sub()
+
+    def Param_prime_sub(self):
+        if self.lookahead == '[':
+            # node
+            self.match('[')
+            self.match(']')
+        elif self.lookahead in follow['Param-prime']:
+            # node
+        elif self.lookahead == '$':
+    # error + termn
+        else:
+            # error
+            self.next_token()
+            self.Param_prime_sub()
+
+
+    def Compound_stmt_sub(self):
+        if self.lookahead == '{':
+            # node
+            self.match('{')
+            self.Declaration_list_sub()
+            self.Statement_list_sub()
+            self.match('}')
+        elif self.lookahead in follow['Compound-stmt']:
+            # error
+        else:
+            # error
+            self.next_token()
+            self.Compound_stmt_sub()
+
+    def Statement_list_sub(self):
+        if self.lookahead in first['Statement']:
+            #node
+            self.Statement_list_sub()
+            self.Statement_sub()
+        elif self.lookahead in follow['Statement-list']:
+            # node
+        elif self.lookahead == '$':
+            # erroe
+        else:
+            #error
+            self.next_token()
+
+    def Statement_sub(self):
+        if self.lookahead in first['Expression-stmt']:
+
+            self.Expression_stmt_sub()
+
+        elif self.lookahead in first['Compound-stmt']:
+
+            self.Compound_stmt_sub()
+
+        elif self.lookahead in first['Selection-stmt']:
+
+            self.Selection_stmt_sub()
+
+        elif self.lookahead in first['Iteration-stmt']:
+
+            self.Iteration_stmt_sub()
+
+        elif self.lookahead in first['Return-stmt']:
+
+            self.Return_stmt_sub()
+
+        elif self.lookahead in first['For-stmt']:
+
+             self.For_stmt_sub()
+
+        elif self.lookahead in follow['Statement']:
+            print("error")
+        elif self.lookahead == '$':
+            print("error end file")
+        else:
+            self.next_token()
+            self.Statement_sub()
+
+
+    def Expression_stmt_sub(self):
+
+
+    def Selection_stmt_sub(self):
+
+    def Iteration_stmt_sub(self):
+
+
+    def Return_stmt_sub(self):
+
+    def For_stmt_sub(self):
+
+
+
+
+
+
 
 
 
