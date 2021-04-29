@@ -34,50 +34,69 @@ class Parser:
 
     def Program_sub(self):
          if self.lookahead in first['Program']:
-
+            # root
+            self.Declaration_list_sub()
+            self.match('$')
          else:
              # raise error
 
     def Declaration_list_sub(self):
         if self.lookahead in first['Declaration']:
 
+            self.Declaration_sub()
+            self.Declaration_list_sub()
+
             ##
         elif self.lookahead in follow['Declaration']:
 
             ## handle tree
         else:
-            ## error
+            print("illegal error")
+            self.next_token()
+            self.Declaration_list_sub()
 
     def Declaration_sub(self):
         if self.lookahead in first['Declaration-initial']:
+            self.Declaration_initial_sub()
+            self.Declaration_prime_sub()
 
 
         elif self.lookahead in follow['Declaration']:
+            print("error")
+        else:
+            self.next_token()
+            self.Declaration_sub()
+
 
     def Declaration_initial_sub(self):
         if self.lookahead in first['Type-specifier']:
+            self.Type_specifier()
             self.match('ID')
 
         elif self.lookahead in follow['Declaration-initial']:
             # syntax error
         elif self.lookahead == '$':
-            # error
+            print("end file error")
             # termination
         else:
             # error
             self.next_token()
+            self.Declaration_initial_sub()
 
 
     def Declaration_prime_sub(self):
         if self.lookahead in first['Fun-declaration-prime']:
             # change node
+            self.Fun_declaration_prime_sub()
         elif self.lookahead in first['Var-declaration-prime']:
             # change node
+            self.Var_declaration_prime_sub()
         elif self.lookahead in follow['Declaration-prime']:
             # missing error
         else:
             # error
             self.next_token()
+            self.Declaration_prime_sub()
 
     def Var_declaration_prime_sub(self):
         if self.lookahead == ';':
@@ -95,6 +114,7 @@ class Parser:
         else:
             # error
             self.next_token()
+            self.Var_declaration_prime_sub()
 
 
     def Fun_declaration_prime_sub(self):
@@ -109,7 +129,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            # call sub of fun_declaration_prime
+            self.Fun_declaration_prime_sub()
 
 
     def Type_specifier(self):
@@ -465,6 +485,27 @@ class Parser:
 
 
     def Expression_stmt_sub(self):
+        if self.lookahead in first['Expression']:
+            self.Expression_sub()
+            self.match(';')
+        elif self.lookahead == 'break':
+
+            self.match('break')
+            self.match(';')
+        elif self.lookahead == ';':
+            self.match(';')
+
+        elif self.lookahead in follow['Expression-stmt']:
+            print("error ")
+
+        elif self.lookahead == '$':
+            print("error end file")
+
+        else:
+            print("illegal error")
+            self.next_token()
+            self.Expression_stmt_sub()
+
 
 
     def Selection_stmt_sub(self):
