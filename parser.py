@@ -65,7 +65,7 @@ class Parser:
             # termination
         else:
             # error
-            self.my_scanner.get_next_token()
+            self.next_token()
 
 
     def Declaration_prime_sub(self):
@@ -77,7 +77,7 @@ class Parser:
             # missing error
         else:
             # error
-            self.my_scanner.get_next_token()
+            self.next_token()
 
     def Var_declaration_prime_sub(self):
         if self.lookahead == ';':
@@ -94,7 +94,7 @@ class Parser:
             # error
         else:
             # error
-            self.my_scanner.get_next_token()
+            self.next_token()
 
 
     def Fun_declaration_prime_sub(self):
@@ -108,7 +108,7 @@ class Parser:
             # error
         else:
             # error
-            self.my_scanner.get_next_token()
+            self.next_token()
             # call sub of fun_declaration_prime
 
 
@@ -125,7 +125,7 @@ class Parser:
             # error + termination
         else:
             # error
-            self.my_scanner.get_next_token()
+            self.next_token()
             #
             self.Type_specifier()
 
@@ -145,7 +145,7 @@ class Parser:
             # error + termination
         else:
             # error
-            self.my_scanner.get_next_token()
+            self.next_token()
             self.Params_sub()
 
 
