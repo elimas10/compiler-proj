@@ -16,7 +16,7 @@ class Scanner:
         self.line_num = 1
         self.token = []
         self.lex_error = []
-        self.program = open(input, 'r').read()+"\n"
+        self.program = open(input, 'r').read()+"$"
         self.comment_start_line=None
         self.start_loc=0
         self.loc =0
@@ -241,5 +241,5 @@ class Scanner:
 
 
 
-scanner =Scanner('./input.txt')
-#scanner.scan()
+# scanner =Scanner('./input.txt')
+# scanner.scan()
