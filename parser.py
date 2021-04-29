@@ -502,20 +502,123 @@ class Parser:
             print("error end file")
 
         else:
-            print("illegal error")
+            print(" error")
             self.next_token()
             self.Expression_stmt_sub()
 
 
 
     def Selection_stmt_sub(self):
+        if self.lookahead == 'if':
+
+            self.match('if')
+            self.match('(')
+            self.Expression_sub()
+            self.match(')')
+            self.Statement_sub()
+            self.match('else')
+            self.Statement_sub()
+
+        elif self.lookahead in follow['Selection-stmt']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+        else:
+            print(" error")
+            self.next_token()
+            self.Selection_stmt_sub()
+
 
     def Iteration_stmt_sub(self):
+
+        if self.lookahead == 'while':
+            self.match('while')
+            self.match('(')
+            self.Expression_sub()
+            self.match(')')
+            self.Statement_sub()
+
+        elif self.lookahead in follow['Iteration-stmt']:
+            print("error")
+        elif self.lookahead =='$':
+            print("end of file error")
+        else:
+            print("error")
+            self.next_token()
+            self.Iteration_stmt_sub()
+
 
 
     def Return_stmt_sub(self):
 
+        if self.lookahead == 'return':
+            self.match('return')
+            self.Return_stmt_prime_sub()
+
+        elif self.lookahead in follow['Return-stmt']
+            print("error")
+        elif self.lookahead == '$':
+            print("end of file error")
+        else:
+            print("error")
+            self.next_token()
+            self.Return_stmt_sub()
+
+
     def For_stmt_sub(self):
+        if self.lookahead == 'for':
+            self.match('for')
+            self.match('ID')
+            self.match('=')
+
+            self.Vars_sub()
+            self.Statement_sub()
+
+        elif self.lookahead in follow['For-stmt']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+
+        else:
+            print("error")
+            self.next_token()
+            self.For_stmt_sub()
+
+    def Vars_sub(self):
+        if self.lookahead in first['Var']:
+            self.Var_sub()
+            self.Var_zegond_sub()
+        elif self.lookahead in follow['Vars']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+
+        else:
+            print("error")
+            self.next_token()
+            self.Vars_sub()
+
+    def Var_zegond_sub(self):
+
+
+
+    def Var_sub(self):
+
+
+    def Expression_sub(self):
+
+
+    def B_sub(self):
+
+    def H_sub(self):
+
+    def Simple_expression_zegond(self):
+
+
+    def Simple_expression_prime(self):
+
+
+
 
 
 
