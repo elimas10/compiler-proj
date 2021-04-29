@@ -21,6 +21,8 @@ class Parser:
     def next_token(self):
         self.cpl_token=self.my_scanner.get_next_token()
         self.lookahead = self.cpl_token[1]
+        print("cuurnet token is :")
+        print(self.cpl_token)
 
     def match(self,node,exp_token):
 
@@ -29,9 +31,6 @@ class Parser:
             self.next_token()
         else:
             print("error in match")
-
-    def folllow_first(self,A):
-        return list(set(follow[A]) - set(first[A]))
 
     ###### write subroutine for each N.T:
 
@@ -236,6 +235,7 @@ class Parser:
             temp2=Node("Statement",node)
             self.Statement_sub(temp2)
         elif self.lookahead in follow['Statement-list']:
+            temp=Node("epsilon",node)
             print("exit")
         # elif self.lookahead == '$':
         #     print("error")
@@ -371,7 +371,8 @@ class Parser:
             self.Var_sub(temp1)
             temp2 = Node("Var_zegond", node)
             self.Var_zegond_sub(temp2)
-        elif self.lookahead in self.folllow_first('Var-zegond'):
+        elif self.lookahead in follow['Var-zegond']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -467,7 +468,8 @@ class Parser:
             self.Relop_sub(temp1)
             temp1 = Node("Additive-expression", node)
             self.Additive_expression(temp1)
-        elif self.lookahead in self.folllow_first('C'):
+        elif self.lookahead in follow['C']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -526,7 +528,8 @@ class Parser:
             temp3 = Node("D", node)
             self.D_sub(temp3)
 
-        elif self.lookahead in self.folllow_first('D'):
+        elif self.lookahead in follow['D']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -583,7 +586,8 @@ class Parser:
             self.Signed_factor_sub(temp1)
             temp2 = Node("G", node)
             self.G_sub(temp2)
-        elif self.lookahead in self.folllow_first('G'):
+        elif self.lookahead in follow['G']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -672,7 +676,8 @@ class Parser:
             temp1 = Node("Expression", node)
             self.Expression_sub(temp1)
             self.match(node,']')
-        elif self.lookahead in self.folllow_first('Var-prime'):
+        elif self.lookahead in follow['Var-prime']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -685,7 +690,8 @@ class Parser:
             temp1 = Node("Args", node)
             self.Args_sub(temp1)
             self.match(node,')')
-        elif self.lookahead in self.folllow_first('Factor-prime'):
+        elif self.lookahead in follow['Factor-prime']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -709,7 +715,8 @@ class Parser:
         if self.lookahead in first['Args']:
             temp1 = Node("Arg-list", node)
             self.Arg_list_sub(temp1)
-        elif self.lookahead in self.folllow_first('Args'):
+        elif self.lookahead in follow['Args']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
@@ -734,7 +741,8 @@ class Parser:
             self.Expression_sub(temp1)
             temp1 = Node("Arg-list-prime", node)
             self.Arg_list_prime_sub(temp1)
-        elif self.lookahead in self.folllow_first('Arg-list-prime'):
+        elif self.lookahead in follow['Arg-list-prime']:
+            temp=Node("epsilon",node)
             print("exit")
         else:
             print(self.illigal_error)
