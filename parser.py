@@ -170,7 +170,7 @@ class Parser:
 
         ##saeede
 
-        def C_sub(self):
+    def C_sub(self):
             if self.lookahead in first['C']:
                 self.Relop_sub()
                 self.Additive_expression()
@@ -178,7 +178,7 @@ class Parser:
             else:
                 print("error")
 
-        def Relop_sub(self):
+    def Relop_sub(self):
             if self.lookahead == '<':
                 self.match('<')
             elif self.lookahead == "==":
@@ -186,28 +186,28 @@ class Parser:
             else:
                 print("error")
 
-        def Additive_expression(self):
+    def Additive_expression(self):
             if self.lookahead in first['Additive-expression']:
                 self.Term_sub()
                 self.D_sub()
             else:
                 print("error")
 
-        def Additive_expression_prime_sub(self):
+    def Additive_expression_prime_sub(self):
             if self.lookahead in first['Additive-expression-prime']:
                 self.Term_prime_sub()
                 self.D_sub()
             else:
                 print("error")
 
-        def Additive_expression_zegond_sub(self):
+    def Additive_expression_zegond_sub(self):
             if self.lookahead in first['Additive-expression-zegond']:
                 self.Term_zegond_sub()
                 self.D_sub()
             else:
                 print("error")
 
-        def D_sub(self):
+    def D_sub(self):
             if self.lookahead in first['D']:
                 self.Addop_sub()
                 self.Term_sub()
@@ -216,7 +216,7 @@ class Parser:
             else:
                 print("error")
 
-        def Addop_sub(self):
+    def Addop_sub(self):
             if self.lookahead == '+':
                 self.match('+')
             elif self.lookahead == '-':
@@ -224,28 +224,28 @@ class Parser:
             else:
                 print("error")
 
-        def Term_sub(self):
+    def Term_sub(self):
             if self.lookahead in first['Term']:
                 self.Signed_factor_sub()
                 self.G_sub()
             else:
                 print("error")
 
-        def Term_prime_sub(self):
+    def Term_prime_sub(self):
             if self.lookahead in first['Term-prime']:
                 self.Signed_factor_prime_sub()
                 self.G_sub()
             else:
                 print("error")
 
-        def Term_zegond_sub(self):
+    def Term_zegond_sub(self):
             if self.lookahead in first['Term-zegond']:
                 self.Signed_factor_zegond_sub()
                 self.G_sub()
             else:
                 print("error")
 
-        def G_sub(self):
+    def G_sub(self):
             if self.lookahead == '*':
                 self.match('*')
                 self.Signed_factor_sub()
@@ -254,7 +254,7 @@ class Parser:
             else:
                 print("error")
 
-        def Signed_factor_sub(self):
+    def Signed_factor_sub(self):
             if self.lookahead in first['Signed-factor']:
                 if self.lookahead == '+':
                     self.match('+')
@@ -267,13 +267,13 @@ class Parser:
             else:
                 print("error")
 
-        def Signed_factor_prime_sub(self):
+    def Signed_factor_prime_sub(self):
             if self.lookahead in first['Signed-factor-prime']:
                 self.Factor_prime_sub()
             else:
                 print("error")
 
-        def Signed_factor_zegond_sub(self):
+    def Signed_factor_zegond_sub(self):
             if self.lookahead in first["Signed-factor-zegond"]:
                 if self.lookahead == '+':
                     self.match('+')
@@ -286,7 +286,7 @@ class Parser:
             else:
                 print("error")
 
-        def Factor_sub(self):
+    def Factor_sub(self):
             if self.lookahead == '(':
                 self.match('(')
                 self.Expression_sub()
@@ -299,7 +299,7 @@ class Parser:
             else:
                 print("error")
 
-        def Var_call_prime_sub(self):
+    def Var_call_prime_sub(self):
             if self.lookahead == '(':
                 self.match('(')
                 self.Args_sub()
@@ -309,7 +309,7 @@ class Parser:
             else:
                 print("error")
 
-        def Var_prime_sub(self):
+    def Var_prime_sub(self):
             if self.lookahead == '[':
                 self.match('[')
                 self.Expression_sub()
@@ -317,7 +317,7 @@ class Parser:
             else:
                 print("error")
 
-        def Factor_prime_sub(self):
+    def Factor_prime_sub(self):
             if self.lookahead == '(':
                 self.match('(')
                 self.Args_sub()
@@ -326,7 +326,7 @@ class Parser:
             else:
                 print("error")
 
-        def Factor_zegond_sub(self):
+    def Factor_zegond_sub(self):
             # if self.lookahead in first['Factor-zegond']:
             if self.lookahead == 'NUM':
                 self.match('NUM')
@@ -337,21 +337,21 @@ class Parser:
             else:
                 print("error")
 
-        def Args_sub(self):
+    def Args_sub(self):
             if self.lookahead in first['Args']:
                 self.Arg_list_sub()
                 # epsilon
             else:
                 print("error")
 
-        def Arg_list_sub(self):
+    def Arg_list_sub(self):
             if self.lookahead in first['Arg-list']:
                 self.Expression_sub()
                 self.Arg_list_prime_sub()
             else:
                 print("error")
 
-        def Arg_list_prime_sub(self):
+    def Arg_list_prime_sub(self):
             if self.lookahead in first['Arg-list-prime']:  # ','
                 self.match(',')
                 self.Expression_sub()
