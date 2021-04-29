@@ -148,6 +148,198 @@ class Parser:
             self.next_token()
             self.Params_sub()
 
+        ##saeede
+
+        def C_sub(self):
+            if self.lookahead in first['C']:
+                self.Relop_sub()
+                self.Additive_expression()
+            # epsilon
+            else:
+                print("error")
+
+        def Relop_sub(self):
+            if self.lookahead == '<':
+                self.match('<')
+            elif self.lookahead == "==":
+                self.match('==')
+            else:
+                print("error")
+
+        def Additive_expression(self):
+            if self.lookahead in first['Additive-expression']:
+                self.Term_sub()
+                self.D_sub()
+            else:
+                print("error")
+
+        def Additive_expression_prime_sub(self):
+            if self.lookahead in first['Additive-expression-prime']:
+                self.Term_prime_sub()
+                self.D_sub()
+            else:
+                print("error")
+
+        def Additive_expression_zegond_sub(self):
+            if self.lookahead in first['Additive-expression-zegond']:
+                self.Term_zegond_sub()
+                self.D_sub()
+            else:
+                print("error")
+
+        def D_sub(self):
+            if self.lookahead in first['D']:
+                self.Addop_sub()
+                self.Term_sub()
+                self.D_sub()
+            # epsilon
+            else:
+                print("error")
+
+        def Addop_sub(self):
+            if self.lookahead == '+':
+                self.match('+')
+            elif self.lookahead == '-':
+                self.match('-')
+            else:
+                print("error")
+
+        def Term_sub(self):
+            if self.lookahead in first['Term']:
+                self.Signed_factor_sub()
+                self.G_sub()
+            else:
+                print("error")
+
+        def Term_prime_sub(self):
+            if self.lookahead in first['Term-prime']:
+                self.Signed_factor_prime_sub()
+                self.G_sub()
+            else:
+                print("error")
+
+        def Term_zegond_sub(self):
+            if self.lookahead in first['Term-zegond']:
+                self.Signed_factor_zegond_sub()
+                self.G_sub()
+            else:
+                print("error")
+
+        def G_sub(self):
+            if self.lookahead == '*':
+                self.match('*')
+                self.Signed_factor_sub()
+                self.G_sub()
+            # epsilon
+            else:
+                print("error")
+
+        def Signed_factor_sub(self):
+            if self.lookahead in first['Signed-factor']:
+                if self.lookahead == '+':
+                    self.match('+')
+                    self.Factor_sub()
+                elif self.lookahead == '-':
+                    self.match('-')
+                    self.Factor_sub()
+                else:
+                    self.Factor_sub()
+            else:
+                print("error")
+
+        def Signed_factor_prime_sub(self):
+            if self.lookahead in first['Signed-factor-prime']:
+                self.Factor_prime_sub()
+            else:
+                print("error")
+
+        def Signed_factor_zegond_sub(self):
+            if self.lookahead in first["Signed-factor-zegond"]:
+                if self.lookahead == '+':
+                    self.match('+')
+                    self.Factor_sub()
+                elif self.lookahead == '-':
+                    self.match('-')
+                    self.Factor_sub()
+                else:
+                    self.Factor_zegond_sub()
+            else:
+                print("error")
+
+        def Factor_sub(self):
+            if self.lookahead == '(':
+                self.match('(')
+                self.Expression_sub()
+                self.match(')')
+            elif self.lookahead == "ID":
+                self.match("ID")
+                self.Var_call_prime_sub()
+            elif self.lookahead == 'NUM':
+                self.match('NUM')
+            else:
+                print("error")
+
+        def Var_call_prime_sub(self):
+            if self.lookahead == '(':
+                self.match('(')
+                self.Args_sub()
+                self.match(')')
+            elif self.lookahead in first['Var-prime']:
+                self.Var_prime_sub()
+            else:
+                print("error")
+
+        def Var_prime_sub(self):
+            if self.lookahead == '[':
+                self.match('[')
+                self.Expression_sub()
+                self.match(']')
+            else:
+                print("error")
+
+        def Factor_prime_sub(self):
+            if self.lookahead == '(':
+                self.match('(')
+                self.Args_sub()
+                self.match(')')
+                # epsilon
+            else:
+                print("error")
+
+        def Factor_zegond_sub(self):
+            # if self.lookahead in first['Factor-zegond']:
+            if self.lookahead == 'NUM':
+                self.match('NUM')
+            elif self.lookahead == '(':
+                self.match('(')
+                self.Expression_sub()
+                self.match(')')
+            else:
+                print("error")
+
+        def Args_sub(self):
+            if self.lookahead in first['Args']:
+                self.Arg_list_sub()
+                # epsilon
+            else:
+                print("error")
+
+        def Arg_list_sub(self):
+            if self.lookahead in first['Arg-list']:
+                self.Expression_sub()
+                self.Arg_list_prime_sub()
+            else:
+                print("error")
+
+        def Arg_list_prime_sub(self):
+            if self.lookahead in first['Arg-list-prime']:  # ','
+                self.match(',')
+                self.Expression_sub()
+                self.Arg_list_prime_sub()
+            else:
+                # what to do with epsilon?
+                print("error")
+
 
 
 
