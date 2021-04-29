@@ -242,4 +242,4 @@ class Scanner:
 
 
 scanner =Scanner('./input.txt')
-scanner.scan()
+#scanner.scan()
