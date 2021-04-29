@@ -1,760 +1,728 @@
 from compiler import Scanner
 from First import first
-from Follow import follow
+from Follow import  follow
 from anytree import Node, RenderTree
 
 
+
 class Parser:
-    my_scanner = None
-    lookahead = None
-    cpl_token=None
 
-    illigal_error='illegal lookahead on line N'
-    missing_error='missing Statement on line N'
+    my_scanner=None
+    lookahead=None
 
-    def __init__(self, input):
-        self.my_scanner = Scanner(input)
+    def __init__(self,input):
+        self.my_scanner=Scanner(input)
         self.next_token()
-        self.root = Node("Program")
-        self.Program_sub(self.root)
 
-    def next_token(self):
-        self.cpl_token=self.my_scanner.get_next_token()
-        self.lookahead = self.cpl_token[1]
-        print("cuurnet token is :")
-        print(self.cpl_token)
 
-    def match(self,node,exp_token):
+
+    def next_token(self):   # to be
+        self.lookahead=self.my_scanner.get_next_token()
+
+
+
+
+    def match(self, exp_token):
 
         if self.lookahead == exp_token:
-            temp=Node(self.cpl_token,node)
             self.next_token()
         else:
             print("error in match")
 
-    ###### write subroutine for each N.T:
 
-    def Program_sub(self,node):
-        if self.lookahead in first['Program']:
-            temp=Node("Declaration-list",node)
-            self.Declaration_list_sub(temp)
-            self.match(node,'$')
-        else:
-            print("error")
+###### write subroutine for each N.T:
 
-        # raise error
+    def Program_sub(self):
+         if self.lookahead in first['Program']:
+            # root
+            self.Declaration_list_sub()
+            self.match('$')
+         else:
+             # raise error
 
-    def Declaration_list_sub(self,node):
-
-
+    def Declaration_list_sub(self):
         if self.lookahead in first['Declaration']:
-            temp1= Node("Declaration", parent=node)
-            self.Declaration_sub(temp1)
-            temp2=Node("Declaration-list", parent=node)
-            self.Declaration_list_sub(temp2)
 
+            self.Declaration_sub()
+            self.Declaration_list_sub()
 
             ##
         elif self.lookahead in follow['Declaration']:
-            print("")
-        ## handle tree
-        else:
-            print("illegal error")
-            self.next_token()
-            self.Declaration_list_sub(node)
 
-    def Declaration_sub(self,node):
+            ## handle tree
+        else:
+            print("error")
+            self.next_token()
+
+
+    def Declaration_sub(self):
         if self.lookahead in first['Declaration-initial']:
-            temp1= Node("Declaration-initial", parent=node)
-            self.Declaration_initial_sub(temp1)
-            temp2= Node("Declaration-prime", parent=node)
-            self.Declaration_prime_sub(temp2)
+            self.Declaration_initial_sub()
+            self.Declaration_prime_sub()
+
 
         elif self.lookahead in follow['Declaration']:
             print("error")
         else:
             self.next_token()
-            self.Declaration_sub(node)
 
-    def Declaration_initial_sub(self,node):
+
+
+    def Declaration_initial_sub(self):
         if self.lookahead in first['Type-specifier']:
-            temp1= Node("Type-specifier", parent=node)
-            self.Type_specifier(temp1)
-            self.match(node,'ID')
+            self.Type_specifier()
+            self.match('ID')
 
         elif self.lookahead in follow['Declaration-initial']:
             # syntax error
-            print("error")
-
         elif self.lookahead == '$':
             print("end file error")
             # termination
         else:
             # error
             self.next_token()
-            self.Declaration_initial_sub(node)
 
-    def Declaration_prime_sub(self,node):
+
+
+    def Declaration_prime_sub(self):
         if self.lookahead in first['Fun-declaration-prime']:
             # change node
-            temp1= Node("Fun-declaration-prime", parent=node)
-            self.Fun_declaration_prime_sub(temp1)
+            self.Fun_declaration_prime_sub()
         elif self.lookahead in first['Var-declaration-prime']:
             # change node
-            temp2= Node("Var-declaration-prime", parent=node)
-            self.Var_declaration_prime_sub(temp2)
+            self.Var_declaration_prime_sub()
         elif self.lookahead in follow['Declaration-prime']:
             # missing error
-            print("error")
         else:
             # error
             self.next_token()
-            self.Declaration_prime_sub(node)
 
-    def Var_declaration_prime_sub(self,node):
+
+    def Var_declaration_prime_sub(self):
         if self.lookahead == ';':
             # change node
-            self.match(node,';')
+            self.match(';')
         elif self.lookahead == '[':
             # change node
-            self.match(node,'[')
-            self.match(node,'NUM')
-            self.match(node,']')
-            self.match(node,';')
+            self.match('[')
+            self.match('NUM')
+            self.match(']')
+            self.match(';')
 
         elif self.lookahead in follow['Var-declaration-prime']:
             # error
-            print("error")
-
         else:
             # error
             self.next_token()
-            self.Var_declaration_prime_sub(node)
 
-    def Fun_declaration_prime_sub(self,node):
+
+
+    def Fun_declaration_prime_sub(self):
         if self.lookahead == '(':
-            self.match(node,'(')
+            self.match('(')
             # change node
             # call sub of params and Compound_stmt
-            self.match(node,')')
+            self.match(')')
 
         elif self.lookahead in follow['Fun-declaration-prime']:
             # error
-            print("error")
-
         else:
             # error
             self.next_token()
-            self.Fun_declaration_prime_sub(node)
 
-    def Type_specifier(self,node):
+
+
+    def Type_specifier(self):
         if self.lookahead == 'int':
             # change node
-            self.match(node,'int')
+            self.match('int')
         elif self.lookahead == 'void':
             # change node
-            self.match(node,'void')
+            self.match('void')
         elif self.lookahead in follow['Type-specifier']:
             # error
-            print("error")
-
         elif self.lookahead == '$':
             # error + termination
-            print("error")
-
         else:
             # error
             self.next_token()
             #
-            self.Type_specifier(node)
 
-    def Params_sub(self,node):
+
+    def Params_sub(self):
         if self.lookahead == 'int':
             # change node
-            self.match(node,'int')
-            self.match(node,'ID')
+            self.match('int')
+            self.match('ID')
             # call subs of param prime & param list
         elif self.lookahead == 'void':
             # change node
-            self.match(node,'void')
+            self.match('void')
             # call sub of aram-list-void-abtar
         elif self.lookahead in follow['Params']:
             # error
-            print("error")
-
         elif self.lookahead == '$':
             # error + termination
-            print("error")
+        else:
+            # error
+            self.next_token()
+
+
+        ##saeede
+
+    def C_sub(self):
+            if self.lookahead in first['C']:
+                self.Relop_sub()
+                self.Additive_expression()
+            # epsilon
+            else:
+                print("error")
+
+    def Relop_sub(self):
+            if self.lookahead == '<':
+                self.match('<')
+            elif self.lookahead == "==":
+                self.match('==')
+            else:
+                print("error")
+
+    def Additive_expression(self):
+            if self.lookahead in first['Additive-expression']:
+                self.Term_sub()
+                self.D_sub()
+            else:
+                print("error")
+
+    def Additive_expression_prime_sub(self):
+            if self.lookahead in first['Additive-expression-prime']:
+                self.Term_prime_sub()
+                self.D_sub()
+            else:
+                print("error")
+
+    def Additive_expression_zegond_sub(self):
+            if self.lookahead in first['Additive-expression-zegond']:
+                self.Term_zegond_sub()
+                self.D_sub()
+            else:
+                print("error")
+
+    def D_sub(self):
+            if self.lookahead in first['D']:
+                self.Addop_sub()
+                self.Term_sub()
+                self.D_sub()
+            # epsilon
+            else:
+                print("error")
+
+    def Addop_sub(self):
+            if self.lookahead == '+':
+                self.match('+')
+            elif self.lookahead == '-':
+                self.match('-')
+            else:
+                print("error")
+
+    def Term_sub(self):
+            if self.lookahead in first['Term']:
+                self.Signed_factor_sub()
+                self.G_sub()
+            else:
+                print("error")
+
+    def Term_prime_sub(self):
+            if self.lookahead in first['Term-prime']:
+                self.Signed_factor_prime_sub()
+                self.G_sub()
+            else:
+                print("error")
+
+    def Term_zegond_sub(self):
+            if self.lookahead in first['Term-zegond']:
+                self.Signed_factor_zegond_sub()
+                self.G_sub()
+            else:
+                print("error")
+
+    def G_sub(self):
+            if self.lookahead == '*':
+                self.match('*')
+                self.Signed_factor_sub()
+                self.G_sub()
+            # epsilon
+            else:
+                print("error")
+
+    def Signed_factor_sub(self):
+            if self.lookahead in first['Signed-factor']:
+                if self.lookahead == '+':
+                    self.match('+')
+                    self.Factor_sub()
+                elif self.lookahead == '-':
+                    self.match('-')
+                    self.Factor_sub()
+                else:
+                    self.Factor_sub()
+            else:
+                print("error")
+
+    def Signed_factor_prime_sub(self):
+            if self.lookahead in first['Signed-factor-prime']:
+                self.Factor_prime_sub()
+            else:
+                print("error")
+
+    def Signed_factor_zegond_sub(self):
+            if self.lookahead in first["Signed-factor-zegond"]:
+                if self.lookahead == '+':
+                    self.match('+')
+                    self.Factor_sub()
+                elif self.lookahead == '-':
+                    self.match('-')
+                    self.Factor_sub()
+                else:
+                    self.Factor_zegond_sub()
+            else:
+                print("error")
+
+    def Factor_sub(self):
+            if self.lookahead == '(':
+                self.match('(')
+                self.Expression_sub()
+                self.match(')')
+            elif self.lookahead == "ID":
+                self.match("ID")
+                self.Var_call_prime_sub()
+            elif self.lookahead == 'NUM':
+                self.match('NUM')
+            else:
+                print("error")
+
+    def Var_call_prime_sub(self):
+            if self.lookahead == '(':
+                self.match('(')
+                self.Args_sub()
+                self.match(')')
+            elif self.lookahead in first['Var-prime']:
+                self.Var_prime_sub()
+            else:
+                print("error")
+
+    def Var_prime_sub(self):
+            if self.lookahead == '[':
+                self.match('[')
+                self.Expression_sub()
+                self.match(']')
+            else:
+                print("error")
+
+    def Factor_prime_sub(self):
+            if self.lookahead == '(':
+                self.match('(')
+                self.Args_sub()
+                self.match(')')
+                # epsilon
+            else:
+                print("error")
+
+    def Factor_zegond_sub(self):
+            # if self.lookahead in first['Factor-zegond']:
+            if self.lookahead == 'NUM':
+                self.match('NUM')
+            elif self.lookahead == '(':
+                self.match('(')
+                self.Expression_sub()
+                self.match(')')
+            else:
+                print("error")
+
+    def Args_sub(self):
+            if self.lookahead in first['Args']:
+                self.Arg_list_sub()
+                # epsilon
+            else:
+                print("error")
+
+    def Arg_list_sub(self):
+            if self.lookahead in first['Arg-list']:
+                self.Expression_sub()
+                self.Arg_list_prime_sub()
+            else:
+                print("error")
+
+    def Arg_list_prime_sub(self):
+            if self.lookahead in first['Arg-list-prime']:  # ','
+                self.match(',')
+                self.Expression_sub()
+                self.Arg_list_prime_sub()
+            else:
+                # what to do with epsilon?
+                print("error")
+
+
+    def Param_list_void_abtar_sub(self):
+        if self.lookahead == 'ID':
+            # node
+            self.match('ID')
+            # call subs of param prime & param list
+        elif self.lookahead in follow['Param-list-void-abtar']:
+            # node
+        elif self.lookahead == '$':
+            # error end of file + term
 
         else:
             # error
             self.next_token()
-            self.Params_sub(node)
 
-    def Param_prime_sub(self,node):
+
+
+    def Param_list_sub(self):
+        if self.lookahead == ',':
+            # node
+            self.match(',')
+            self.Param_sub()
+            self.Param_list_sub()
+        elif self.lookahead in follow['Param-list']:
+            # node
+        elif self.lookahead == '$':
+    # error end of file + term
+        else:
+            # error
+            self.next_token()
+
+
+
+    def Param_sub(self):
+        if self.lookahead in first['Declaration-initial']:
+            # node
+            self.Declaration_initial_sub()
+            self.Param_prime_sub()
+
+        elif self.lookahead in follow['Param']:
+            # error
+        elif self.lookahead == '$':
+            # error + termn
+        else:
+            # error
+            self.next_token()
+
+
+    def Param_prime_sub(self):
         if self.lookahead == '[':
             # node
-            self.match(node,'[')
-            self.match(node,']')
+            self.match('[')
+            self.match(']')
         elif self.lookahead in follow['Param-prime']:
             # node
-            print("node")
         elif self.lookahead == '$':
-            print("error")
-
-        # error + termn
+    # error + termn
         else:
             # error
-            print(self.illigal_error)
             self.next_token()
-            self.Param_prime_sub(node)
 
-    def Compound_stmt_sub(self,node):
+
+
+    def Compound_stmt_sub(self):
         if self.lookahead == '{':
             # node
-            self.match(node,'{')
-            temp1=Node("Declaration-list",node)
-            self.Declaration_list_sub(temp1)
-            temp2=Node("Statement-list",node)
-            self.Statement_list_sub(temp2)
-            self.match(node,'}')
+            self.match('{')
+            self.Declaration_list_sub()
+            self.Statement_list_sub()
+            self.match('}')
         elif self.lookahead in follow['Compound-stmt']:
             # error
-            print("error")
         else:
             # error
-            print(self.illigal_error)
             self.next_token()
-            self.Compound_stmt_sub(node)
 
-    def Statement_list_sub(self,node):
+
+    def Statement_list_sub(self):
         if self.lookahead in first['Statement']:
-            # node
-            temp1=Node("Statement-list",node)
-            self.Statement_list_sub(temp1)
-            temp2=Node("Statement",node)
-            self.Statement_sub(temp2)
+            #node
+            self.Statement_list_sub()
+            self.Statement_sub()
         elif self.lookahead in follow['Statement-list']:
-            temp=Node("epsilon",node)
-            print("exit")
-        # elif self.lookahead == '$':
-        #     print("error")
+            # node
+        elif self.lookahead == '$':
             # erroe
         else:
-            print(self.illigal_error)
+            #error
             self.next_token()
-            self.Statement_list_sub(node)
 
-    def Statement_sub(self,node):
-        if self.lookahead in first['Statement']:
-            if self.lookahead in first['Expression-stmt']:
-                temp2 = Node("Expression-stmt", node)
-                self.Expression_stmt_sub(temp2)
-            elif self.lookahead in first['Compound-stmt']:
-                temp2 = Node("Compound-stmt", node)
-                self.Compound_stmt_sub(temp2)
-            elif self.lookahead in first['Selection-stmt']:
-                temp2 = Node("Selection-stmt", node)
-                self.Selection_stmt_sub(temp2)
-            elif self.lookahead in first['Iteration-stmt']:
-                temp2 = Node("Iteration-stmt", node)
-                self.Iteration_stmt_sub(temp2)
-            elif self.lookahead in first['Return-stmt']:
-                temp2 = Node("Return-stmt", node)
-                self.Return_stmt_sub(temp2)
-            elif self.lookahead in first['For-stmt']:
-                temp2 = Node("For-stmt", node)
-                self.For_stmt_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Statement_sub(node)
-
-    def Expression_stmt_sub(self,node):
+    def Statement_sub(self):
         if self.lookahead in first['Expression-stmt']:
-            if self.lookahead == ';':
-                self.match(node,';')
-            elif self.lookahead == 'break':
-                self.match(node,'break')
-                self.match(node,';')
-            else:
-                temp2 = Node("Expression", node)
-                self.Expression_sub(temp2)
-                self.match(node,';')
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Expression_stmt_sub(node)
 
-    def Selection_stmt_sub(self,node):
-        if self.lookahead == 'if':
-            self.match(node,'if')
-            self.match(node,'(')
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            self.match(node,')')
-            temp2 = Node("Statement", node)
-            self.Statement_sub(temp2)
-            self.match(node,'else')
-            temp3 = Node("Statement", node)
-            self.Statement_sub(temp3)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Selection_stmt_sub(node)
+            self.Expression_stmt_sub()
 
-    def Iteration_stmt_sub(self,node):
-        if self.lookahead == 'while':
-            self.match(node,'while')
-            self.match(node,'(')
-            temp = Node("Expression", node)
-            self.Expression_sub(temp)
-            self.match(node,')')
-            temp3 = Node("Statement", node)
-            self.Statement_sub(temp3)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Iteration_stmt_sub(node)
+        elif self.lookahead in first['Compound-stmt']:
 
-    def Return_stmt_sub(self,node):
-        if self.lookahead == 'return':
-            self.match(node,'return')
-            temp = Node("Return-stmt-prime", node)
-            self.Return_stmt_prime_sub(temp)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Return_stmt_sub(node)
+            self.Compound_stmt_sub()
 
-    def Return_stmt_prime_sub(self,node):
-        if self.lookahead == ';':
-            self.match(node,";")
-        elif self.lookahead in first['Return-stmt-prime']:
-            temp = Node("Expression", node)
-            self.Expression_sub(temp)
-            self.match(node,';')
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Return_stmt_prime_sub(node)
+        elif self.lookahead in first['Selection-stmt']:
 
-    def For_stmt_sub(self,node):
-        if self.lookahead == 'for':
-            self.match(node,'for')
-            self.match(node,'ID')
-            self.match(node,'=')
-            temp = Node("Vars", node)
-            self.Vars_sub(temp)
-            temp2 = Node("Statement", node)
-            self.Statement_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.For_stmt_sub(node)
+            self.Selection_stmt_sub()
 
-    def Vars_sub(self,node):
-        if self.lookahead in first['Vars']:
-            temp1 = Node("Vars", node)
-            self.Var_sub(temp1)
-            temp2 = Node("Var-zegond", node)
-            self.Var_zegond_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Var_sub(node)
+        elif self.lookahead in first['Iteration-stmt']:
 
-    def Var_zegond_sub(self,node):
-        if self.lookahead == ',':
-            self.match(node,',')
-            temp1 = Node("Var", node)
-            self.Var_sub(temp1)
-            temp2 = Node("Var_zegond", node)
-            self.Var_zegond_sub(temp2)
-        elif self.lookahead in follow['Var-zegond']:
-            temp=Node("epsilon",node)
-            print("exit")
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Var_zegond_sub(node)
+            self.Iteration_stmt_sub()
 
-    def Var_sub(self,node):
-        if self.lookahead == 'ID':
-            self.match(node,'ID')
-            temp1 = Node("Var-prime", node)
-            self.Var_prime_sub(temp1)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Var_sub(node)
+        elif self.lookahead in first['Return-stmt']:
 
-    def Expression_sub(self,node):
+            self.Return_stmt_sub()
+
+        elif self.lookahead in first['For-stmt']:
+
+             self.For_stmt_sub()
+
+        elif self.lookahead in follow['Statement']:
+            print("error")
+        elif self.lookahead == '$':
+            print("error end file")
+        else:
+            self.next_token()
+
+
+
+    def Expression_stmt_sub(self):
         if self.lookahead in first['Expression']:
-            if self.lookahead == 'ID':
-                self.match(node,'ID')
-                temp1 = Node("B", node)
-                self.B_sub(temp1)
-            else:
-                temp2 = Node("Simple-expression-zegond", node)
-                self.Simple_expression_zegond(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Expression_sub(node)
+            self.Expression_sub()
+            self.match(';')
+        elif self.lookahead == 'break':
 
-    def B_sub(self,node):
-        if self.lookahead == '=':
-            self.match(node,'=')
-            temp2 = Node("Expression", node)
-            self.Expression_sub(temp2)
-        elif self.lookahead == '[':
-            self.match(node,'[')
-            temp2 = Node("Expression", node)
-            self.Expression_sub(temp2)
-            self.match(node,']')
-            temp2 = Node("H", node)
-            self.H_sub(temp2)
-        elif self.lookahead in first['B']:
-            temp2 = Node("Simple-expression-prime", node)
-            self.Simple_expression_prime_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.B_sub(node)
+            self.match('break')
+            self.match(';')
+        elif self.lookahead == ';':
+            self.match(';')
 
-    def H_sub(self,node):
-        if self.lookahead == '=':
-            self.match(node,'=')
-            temp2 = Node("Expression", node)
-            self.Expression_sub(temp2)
-        elif self.lookahead in first['H']:
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
-            temp2 = Node("C", node)
-            self.C_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.H_sub(node)
+        elif self.lookahead in follow['Expression-stmt']:
+            print("error ")
 
-    def Simple_expression_zegond(self,node):
+        elif self.lookahead == '$':
+            print("error end file")
+
+        else:
+            print(" error")
+            self.next_token()
+
+
+
+
+    def Selection_stmt_sub(self):
+        if self.lookahead == 'if':
+
+            self.match('if')
+            self.match('(')
+            self.Expression_sub()
+            self.match(')')
+            self.Statement_sub()
+            self.match('else')
+            self.Statement_sub()
+
+        elif self.lookahead in follow['Selection-stmt']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+        else:
+            print(" error")
+            self.next_token()
+
+
+
+    def Iteration_stmt_sub(self):
+
+        if self.lookahead == 'while':
+            self.match('while')
+            self.match('(')
+            self.Expression_sub()
+            self.match(')')
+            self.Statement_sub()
+
+        elif self.lookahead in follow['Iteration-stmt']:
+            print("error")
+        elif self.lookahead =='$':
+            print("end of file error")
+        else:
+            print("error")
+            self.next_token()
+
+
+
+
+    def Return_stmt_sub(self):
+
+        if self.lookahead == 'return':
+            self.match('return')
+            self.Return_stmt_prime_sub()
+
+        elif self.lookahead in follow['Return-stmt']
+            print("error")
+        elif self.lookahead == '$':
+            print("end of file error")
+        else:
+            print("error")
+            self.next_token()
+
+
+
+    def For_stmt_sub(self):
+        if self.lookahead == 'for':
+            self.match('for')
+            self.match('ID')
+            self.match('=')
+
+            self.Vars_sub()
+            self.Statement_sub()
+
+        elif self.lookahead in follow['For-stmt']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+
+        else:
+            print("error")
+            self.next_token()
+
+
+    def Vars_sub(self):
+        if self.lookahead in first['Var']:
+            self.Var_sub()
+            self.Var_zegond_sub()
+        elif self.lookahead in follow['Vars']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+
+        else:
+            print("error")
+            self.next_token()
+
+
+    def Var_zegond_sub(self):
+
+        if self.lookahead == ',':
+            self.match(',')
+            self.Var_sub()
+            self.Var_zegond_sub()
+        elif self.lookahead in follow('Var-zegond'):
+
+        elif self.lookahead == '$':
+            print("error end file")
+        else:
+            print("error")
+            self.next_token()
+
+
+
+
+
+
+    def Var_sub(self):
+        if self.lookahead == 'ID':
+            self.match('ID')
+            self.Var_prime_sub()
+        elif self.lookahead in follow['Var']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+        else:
+            print("error")
+            self.next_token()
+
+
+
+    def Expression_sub(self):
         if self.lookahead in first['Simple-expression-zegond']:
-            temp1 = Node("Additive-expression-zegond", node)
-            self.Additive_expression_zegond_sub(temp1)
-            temp2 = Node("C", node)
-            self.C_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Simple_expression_zegond(node)
+            self.Simple_expression_zegond()
+        elif self.lookahead == 'ID':
+            self.match('ID')
 
-    def Simple_expression_prime_sub(self,node):
-        if self.lookahead in first['Simple-expression-prime']:
-            temp1 = Node("Additive-expression-prime", node)
-            self.Additive_expression_prime_sub(temp1)
-            temp1 = Node("C", node)
-            self.C_sub(temp1)
+            self.B_sub()
+        elif self.lookahead in follow['Expression']:
+            print("error")
         else:
-            print(self.illigal_error)
             self.next_token()
-            self.Simple_expression_prime_sub(node)
+            #
 
-    def C_sub(self,node):
-        if self.lookahead in first['C']:
-            temp1 = Node("Relop", node)
-            self.Relop_sub(temp1)
-            temp1 = Node("Additive-expression", node)
-            self.Additive_expression(temp1)
-        elif self.lookahead in follow['C']:
-            temp=Node("epsilon",node)
-            print("exit")
+
+    def B_sub(self):
+        if self.lookahead == '=':
+            self.match('=')
+            self.Expression_sub()
+
+        elif self.lookahead == '[':
+            self.match('[')
+            self.Expression_sub()
+            self.match(']')
+
+            self.H_sub()
+        elif self.lookahead in first['Simple-expression-prime']:
+            self.Simple_expression_prime()
+        elif self.lookahead in follow['B']:
+            self.Simple_expression_prime()
+
         else:
-            print(self.illigal_error)
+            print("error")
             self.next_token()
-            self.C_sub(node)
+            #
 
-    def Relop_sub(self,node):
-        if self.lookahead == '<':
-            self.match(node,'<')
-        elif self.lookahead == "==":
-            self.match(node,'==')
+    def H_sub(self):
+        if self.lookahead == '=':
+            self.match('=')
+            self.Expression_sub()
+
+       # elif
+
+
         else:
-            print(self.illigal_error)
+            print("error")
             self.next_token()
-            self.Relop_sub(node)
 
-    def Additive_expression(self,node):
-        if self.lookahead in first['Additive-expression']:
-            temp1 = Node("Term", node)
-            self.Term_sub(temp1)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Additive_expression(node)
 
-    def Additive_expression_prime_sub(self,node):
-        if self.lookahead in first['Additive-expression-prime']:
-            temp1 = Node("Term-prime", node)
-            self.Term_prime_sub(temp1)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Additive_expression_prime_sub(node)
 
-    def Additive_expression_zegond_sub(self,node):
+    def Simple_expression_zegond(self):
         if self.lookahead in first['Additive-expression-zegond']:
-            temp1 = Node("Term-zegond", node)
-            self.Term_zegond_sub(temp1)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
+            self.Additive_expression_zegond_sub()
+            self.C_sub()
+        elif self.lookahead in follow['Simple-expression-zegond']:
+            print("error")
         else:
-            print(self.illigal_error)
+            print("error")
             self.next_token()
-            self.Additive_expression_zegond_sub(node)
 
-    def D_sub(self,node):
-        if self.lookahead in first['D']:
-            temp1 = Node("Addop", node)
-            self.Addop_sub(temp1)
-            temp2 = Node("Term", node)
-            self.Term_sub(temp2)
-            temp3 = Node("D", node)
-            self.D_sub(temp3)
 
-        elif self.lookahead in follow['D']:
-            temp=Node("epsilon",node)
-            print("exit")
+
+    def Simple_expression_prime(self):
+        if self.lookahead in first['Additive-expression-prime']\
+            or self.lookahead in first['C']\
+            or self.lookahead in follow['Simple-expression-prime']:
+
+            self.Additive_expression_prime_sub()
+            self.C_sub()
+
         else:
-            print(self.illigal_error)
+            print("error")
             self.next_token()
-            self.D_sub(node)
-
-    def Addop_sub(self,node):
-        if self.lookahead == '+':
-            self.match(node,'+')
-        elif self.lookahead == '-':
-            self.match(node,'-')
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Addop_sub(node)
-
-    def Term_sub(self,node):
-        if self.lookahead in first['Term']:
-            temp1 = Node("Signed-factor", node)
-            self.Signed_factor_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Term_sub(node)
-
-    def Term_prime_sub(self,node):
-        if self.lookahead in first['Term-prime']:
-            temp1 = Node("Signed-factor-prime", node)
-            self.Signed_factor_prime_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Term_prime_sub(node)
-
-    def Term_zegond_sub(self,node):
-        if self.lookahead in first['Term-zegond']:
-            temp1 = Node("Signed-factor-zegond", node)
-            self.Signed_factor_zegond_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Term_zegond_sub(node)
-
-    def G_sub(self,node):
-        if self.lookahead == '*':
-            self.match(node,'*')
-            temp1 = Node("Signed-factor", node)
-            self.Signed_factor_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
-        elif self.lookahead in follow['G']:
-            temp=Node("epsilon",node)
-            print("exit")
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.G_sub(node)
-
-    def Signed_factor_sub(self,node):
-        if self.lookahead in first['Signed-factor']:
-            if self.lookahead == '+':
-                self.match(node,'+')
-                temp1 = Node("Factor", node)
-                self.Factor_sub(temp1)
-            elif self.lookahead == '-':
-                self.match(node,'-')
-                temp1 = Node("Factor", node)
-                self.Factor_sub(temp1)
-            else:
-                temp1 = Node("Factor", node)
-                self.Factor_sub(temp1)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Signed_factor_sub(node)
-
-    def Signed_factor_prime_sub(self,node):
-        if self.lookahead in first['Signed-factor-prime']:
-            temp1 = Node("Factor-prime", node)
-            self.Factor_prime_sub(temp1)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Signed_factor_prime_sub(node)
-
-    def Signed_factor_zegond_sub(self,node):
-        if self.lookahead in first["Signed-factor-zegond"]:
-            if self.lookahead == '+':
-                self.match(node,'+')
-                temp1 = Node("Factor", node)
-                self.Factor_sub(temp1)
-            elif self.lookahead == '-':
-                self.match(node,'-')
-                temp1 = Node("Factor", node)
-                self.Factor_sub(temp1)
-            else:
-                temp1 = Node("Factor-zegond", node)
-                self.Factor_zegond_sub(temp1)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Signed_factor_zegond_sub(node)
-
-    def Factor_sub(self,node):
-        if self.lookahead == '(':
-            self.match(node,'(')
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            self.match(node,')')
-        elif self.lookahead == "ID":
-            self.match(node,"ID")
-            temp1 = Node("Var-call-prime", node)
-            self.Var_call_prime_sub(temp1)
-        elif self.lookahead == 'NUM':
-            self.match(node,'NUM')
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Factor_sub(node)
-
-    def Var_call_prime_sub(self,node):
-        if self.lookahead == '(':
-            self.match(node,'(')
-            temp1 = Node("Args", node)
-            self.Args_sub(temp1)
-            self.match(node,')')
-        elif self.lookahead in first['Var-prime']:
-            temp1 = Node("Var-prime", node)
-            self.Var_prime_sub(temp1)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Var_call_prime_sub(node)
-
-    def Var_prime_sub(self,node):
-        if self.lookahead == '[':
-            self.match(node,'[')
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            self.match(node,']')
-        elif self.lookahead in follow['Var-prime']:
-            temp=Node("epsilon",node)
-            print("exit")
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Var_prime_sub(node)
-
-    def Factor_prime_sub(self,node):
-        if self.lookahead == '(':
-            self.match(node,'(')
-            temp1 = Node("Args", node)
-            self.Args_sub(temp1)
-            self.match(node,')')
-        elif self.lookahead in follow['Factor-prime']:
-            temp=Node("epsilon",node)
-            print("exit")
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Factor_prime_sub(node)
-
-    def Factor_zegond_sub(self,node):
-        if self.lookahead == 'NUM':
-            self.match(node,'NUM')
-        elif self.lookahead == '(':
-            self.match(node,'(')
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            self.match(node,')')
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Factor_zegond_sub(node)
-
-    def Args_sub(self,node):
-        if self.lookahead in first['Args']:
-            temp1 = Node("Arg-list", node)
-            self.Arg_list_sub(temp1)
-        elif self.lookahead in follow['Args']:
-            temp=Node("epsilon",node)
-            print("exit")
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Args_sub(node)
-
-    def Arg_list_sub(self,node):
-        if self.lookahead in first['Arg-list']:
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            temp1 = Node("Arg-list-prime", node)
-            self.Arg_list_prime_sub(temp1)
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Arg_list_sub(node)
-
-    def Arg_list_prime_sub(self,node):
-        if self.lookahead in first['Arg-list-prime']:
-            self.match(node,',')
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            temp1 = Node("Arg-list-prime", node)
-            self.Arg_list_prime_sub(temp1)
-        elif self.lookahead in follow['Arg-list-prime']:
-            temp=Node("epsilon",node)
-            print("exit")
-        else:
-            print(self.illigal_error)
-            self.next_token()
-            self.Arg_list_prime_sub(node)
 
 
 
-parser = Parser('./input.txt')
 
 
 
-for pre, fill, node in RenderTree(parser.root):
-    print("%s%s" % (pre, node.name))
+
+
+
+
+
+
+
+
+# parser=Parser('./input.txt')
+# print("1")
+# print(parser)
+# print("2")
+# print(parser.lookahead)
+#
+#
+
 
