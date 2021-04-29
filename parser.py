@@ -53,7 +53,7 @@ class Parser:
         else:
             print("illegal error")
             self.next_token()
-            self.Declaration_list_sub()
+
 
     def Declaration_sub(self):
         if self.lookahead in first['Declaration-initial']:
@@ -65,7 +65,7 @@ class Parser:
             print("error")
         else:
             self.next_token()
-            self.Declaration_sub()
+
 
 
     def Declaration_initial_sub(self):
@@ -81,7 +81,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Declaration_initial_sub()
+
 
 
     def Declaration_prime_sub(self):
@@ -96,7 +96,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Declaration_prime_sub()
+
 
     def Var_declaration_prime_sub(self):
         if self.lookahead == ';':
@@ -114,7 +114,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Var_declaration_prime_sub()
+
 
 
     def Fun_declaration_prime_sub(self):
@@ -129,7 +129,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Fun_declaration_prime_sub()
+
 
 
     def Type_specifier(self):
@@ -147,7 +147,7 @@ class Parser:
             # error
             self.next_token()
             #
-            self.Type_specifier()
+
 
     def Params_sub(self):
         if self.lookahead == 'int':
@@ -166,7 +166,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Params_sub()
+
 
         ##saeede
 
@@ -374,7 +374,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Param_list_void_abtar_sub()
+
 
 
     def Param_list_sub(self):
@@ -390,7 +390,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Param_list_sub()
+
 
 
     def Param_sub(self):
@@ -406,7 +406,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Params_sub()
+
 
     def Param_prime_sub(self):
         if self.lookahead == '[':
@@ -420,7 +420,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Param_prime_sub()
+
 
 
     def Compound_stmt_sub(self):
@@ -435,7 +435,7 @@ class Parser:
         else:
             # error
             self.next_token()
-            self.Compound_stmt_sub()
+
 
     def Statement_list_sub(self):
         if self.lookahead in first['Statement']:
@@ -481,7 +481,7 @@ class Parser:
             print("error end file")
         else:
             self.next_token()
-            self.Statement_sub()
+
 
 
     def Expression_stmt_sub(self):
@@ -504,7 +504,7 @@ class Parser:
         else:
             print(" error")
             self.next_token()
-            self.Expression_stmt_sub()
+
 
 
 
@@ -526,7 +526,7 @@ class Parser:
         else:
             print(" error")
             self.next_token()
-            self.Selection_stmt_sub()
+
 
 
     def Iteration_stmt_sub(self):
@@ -545,7 +545,7 @@ class Parser:
         else:
             print("error")
             self.next_token()
-            self.Iteration_stmt_sub()
+
 
 
 
@@ -562,7 +562,7 @@ class Parser:
         else:
             print("error")
             self.next_token()
-            self.Return_stmt_sub()
+
 
 
     def For_stmt_sub(self):
@@ -582,7 +582,7 @@ class Parser:
         else:
             print("error")
             self.next_token()
-            self.For_stmt_sub()
+
 
     def Vars_sub(self):
         if self.lookahead in first['Var']:
@@ -596,26 +596,115 @@ class Parser:
         else:
             print("error")
             self.next_token()
-            self.Vars_sub()
+
 
     def Var_zegond_sub(self):
+
+        if self.lookahead == ',':
+            self.match(',')
+            self.Var_sub()
+            self.Var_zegond_sub()
+        elif self.lookahead in follow('Var-zegond'):
+
+        elif self.lookahead == '$':
+            print("error end file")
+        else:
+            print("error")
+            self.next_token()
+
+
+
 
 
 
     def Var_sub(self):
+        if self.lookahead == 'ID':
+            self.match('ID')
+            self.Var_prime_sub()
+        elif self.lookahead in follow['Var']:
+            print("error")
+        elif self.lookahead == '$':
+            print("end file error")
+        else:
+            print("error")
+            self.next_token()
+
 
 
     def Expression_sub(self):
+        if self.lookahead in first['Simple-expression-zegond']:
+            self.Simple_expression_zegond()
+        elif self.lookahead == 'ID':
+            self.match('ID')
+
+            self.B_sub()
+        elif self.lookahead in follow['Expression']:
+            print("error")
+        else:
+            self.next_token()
+            #
 
 
     def B_sub(self):
+        if self.lookahead == '=':
+            self.match('=')
+            self.Expression_sub()
+
+        elif self.lookahead == '[':
+            self.match('[')
+            self.Expression_sub()
+            self.match(']')
+
+            self.H_sub()
+        elif self.lookahead in first['Simple-expression-prime']:
+            self.Simple_expression_prime()
+        elif self.lookahead in follow['B']:
+            self.Simple_expression_prime()
+
+        else:
+            print("error")
+            self.next_token()
+            #
 
     def H_sub(self):
+        if self.lookahead == '=':
+            self.match('=')
+            self.Expression_sub()
+
+       # elif
+
+
+        else:
+            print("error")
+            self.next_token()
+
+
 
     def Simple_expression_zegond(self):
+        if self.lookahead in first['Additive-expression-zegond']:
+            self.Additive_expression_zegond_sub()
+            self.C_sub()
+        elif self.lookahead in follow['Simple-expression-zegond']:
+            print("error")
+        else:
+            print("error")
+            self.next_token()
+
 
 
     def Simple_expression_prime(self):
+        if self.lookahead in first['Additive-expression-prime']\
+            or self.lookahead in first['C']\
+            or self.lookahead in follow['Simple-expression-prime']:
+
+            self.Additive_expression_prime_sub()
+            self.C_sub()
+
+        else:
+            print("error")
+            self.next_token()
+
+
 
 
 
