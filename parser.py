@@ -51,7 +51,7 @@ class Parser:
 
             ## handle tree
         else:
-            print("illegal error")
+            print("error")
             self.next_token()
 
 
