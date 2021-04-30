@@ -49,8 +49,6 @@ class Parser:
             self.Declaration_list_sub(temp)
             self.match(node, '$')
         else:
-            print("error")
-           # self.syn_err_l.append("")
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
 
     def Declaration_list_sub(self, node):
@@ -64,8 +62,10 @@ class Parser:
         elif self.lookahead in follow['Declaration']:
             temp = Node("epsilon", node)
         ## handle tree
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print("illegal error")
+
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Declaration_list_sub(node)
@@ -78,8 +78,12 @@ class Parser:
             self.Declaration_prime_sub(temp2)
 
         elif self.lookahead in follow['Declaration']:
-            #print("error")
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Declaration")
+
+
+        elif self.lookahead == '$':
+
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
@@ -92,13 +96,10 @@ class Parser:
             self.match(node, 'ID')
 
         elif self.lookahead in follow['Declaration-initial']:
-            # syntax error
-            #print("error")
-            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Declaration")
 
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Declaration")
         elif self.lookahead == '$':
-            print("end file error")
-            # termination
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
             # error
             self.syn_err_l.append(self.my_scanner.line_num + ": syntax error, illegal " + self.lookahead)
@@ -117,7 +118,8 @@ class Parser:
         elif self.lookahead in follow['Declaration-prime']:
             # missing error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Declaration-prime")
-            print("error")
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -138,8 +140,8 @@ class Parser:
         elif self.lookahead in follow['Var-declaration-prime']:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Var-Declaration-prime")
-
-
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -158,7 +160,8 @@ class Parser:
         elif self.lookahead in follow['Fun-declaration-prime']:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Fun-Declaration-prime")
-            #print("error")
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
             # error
@@ -176,12 +179,10 @@ class Parser:
         elif self.lookahead in follow['Type-specifier']:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Type-specifier")
-            #print("error")
 
         elif self.lookahead == '$':
-            # error + termination
-            print("error")
 
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -205,11 +206,9 @@ class Parser:
             self.Param_list_void_abtar(temp)
         elif self.lookahead in follow['Params']:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Params")
-            #print("error")
-
         elif self.lookahead == '$':
-            # error + termination
-            print("error")
+
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
             # error
@@ -228,8 +227,11 @@ class Parser:
         elif self.lookahead in follow['Param-list-void-abtar']:
             # node epsilon
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
+
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Param_list_void_abtar(node)
@@ -243,9 +245,11 @@ class Parser:
         elif self.lookahead in follow['Param-list']:
             # node epsilon
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Param_list(node)
@@ -257,8 +261,10 @@ class Parser:
             temp = Node("Param-prime", node)
 
             self.Param_prime_sub(temp)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Param_sub(node)
@@ -269,15 +275,15 @@ class Parser:
             self.match(node, '[')
             self.match(node, ']')
         elif self.lookahead in follow['Param-prime']:
-            # node
-            print("node")
+            #TODO
+            print("what?")
         elif self.lookahead == '$':
-            print("error")
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         # error + termn
         else:
             # error
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Param_prime_sub(node)
@@ -293,10 +299,9 @@ class Parser:
             self.match(node, '}')
         elif self.lookahead in follow['Compound-stmt']:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Compound-stmt")
-            #print("error")
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            # error
-            print(self.illigal_error, self.cpl_token)
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Compound_stmt_sub(node)
@@ -313,11 +318,10 @@ class Parser:
         elif self.lookahead in follow['Statement-list']:
             temp = Node("epsilon", node)
 
-        # elif self.lookahead == '$':
-        #     print("error")
-        # erroe
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Statement_list_sub(node)
@@ -342,8 +346,10 @@ class Parser:
             elif self.lookahead in first['For-stmt']:
                 temp2 = Node("For-stmt", node)
                 self.For_stmt_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Statement_sub(node)
@@ -359,9 +365,10 @@ class Parser:
                 temp2 = Node("Expression", node)
                 self.Expression_sub(temp2)
                 self.match(node, ';')
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print("ex statement ")
-            print(self.illigal_error, self.cpl_token)
+
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Expression_stmt_sub(node)
@@ -378,8 +385,10 @@ class Parser:
             self.match(node, 'else')
             temp3 = Node("Statement", node)
             self.Statement_sub(temp3)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Selection_stmt_sub(node)
@@ -393,8 +402,10 @@ class Parser:
             self.match(node, ')')
             temp3 = Node("Statement", node)
             self.Statement_sub(temp3)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Iteration_stmt_sub(node)
@@ -404,8 +415,10 @@ class Parser:
             self.match(node, 'return')
             temp = Node("Return-stmt-prime", node)
             self.Return_stmt_prime_sub(temp)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Return_stmt_sub(node)
@@ -417,8 +430,9 @@ class Parser:
             temp = Node("Expression", node)
             self.Expression_sub(temp)
             self.match(node, ';')
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error,self.lookahead)
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Return_stmt_prime_sub(node)
@@ -432,8 +446,9 @@ class Parser:
             self.Vars_sub(temp)
             temp2 = Node("Statement", node)
             self.Statement_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error,self.lookahead)
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.For_stmt_sub(node)
@@ -444,8 +459,10 @@ class Parser:
             self.Var_sub(temp1)
             temp2 = Node("Var-zegond", node)
             self.Var_zegond_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Var_sub(node)
@@ -459,9 +476,11 @@ class Parser:
             self.Var_zegond_sub(temp2)
         elif self.lookahead in follow['Var-zegond']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Var_zegond_sub(node)
@@ -471,8 +490,10 @@ class Parser:
             self.match(node, 'ID')
             temp1 = Node("Var-prime", node)
             self.Var_prime_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Var_sub(node)
@@ -485,9 +506,9 @@ class Parser:
         elif self.lookahead in first['Expression']:
             temp2 = Node("Simple-expression-zegond", node)
             self.Simple_expression_zegond(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print("expression")
-            print(self.illigal_error, self.cpl_token)
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Expression_sub(node)
@@ -507,8 +528,10 @@ class Parser:
         elif self.lookahead in first['B'] or self.lookahead in follow['B']:
             temp2 = Node("Simple-expression-prime", node)
             self.Simple_expression_prime_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.B_sub(node)
@@ -525,8 +548,10 @@ class Parser:
             self.D_sub(temp2)
             temp2 = Node("C", node)
             self.C_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.H_sub(node)
@@ -537,8 +562,10 @@ class Parser:
             self.Additive_expression_zegond_sub(temp1)
             temp2 = Node("C", node)
             self.C_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Simple_expression_zegond(node)
@@ -549,8 +576,10 @@ class Parser:
             self.Additive_expression_prime_sub(temp1)
             temp1 = Node("C", node)
             self.C_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Simple_expression_prime_sub(node)
@@ -563,9 +592,11 @@ class Parser:
             self.Additive_expression(temp1)
         elif self.lookahead in follow['C']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.C_sub(node)
@@ -575,9 +606,9 @@ class Parser:
             self.match(node, '<')
         elif self.lookahead == "==":
             self.match(node, '==')
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print("relop")
-            print(self.illigal_error, self.cpl_token)
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Relop_sub(node)
@@ -588,8 +619,10 @@ class Parser:
             self.Term_sub(temp1)
             temp2 = Node("D", node)
             self.D_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Additive_expression(node)
@@ -600,8 +633,10 @@ class Parser:
             self.Term_prime_sub(temp1)
             temp2 = Node("D", node)
             self.D_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Additive_expression_prime_sub(node)
@@ -612,8 +647,10 @@ class Parser:
             self.Term_zegond_sub(temp1)
             temp2 = Node("D", node)
             self.D_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Additive_expression_zegond_sub(node)
@@ -629,9 +666,11 @@ class Parser:
 
         elif self.lookahead in follow['D']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.D_sub(node)
@@ -641,8 +680,10 @@ class Parser:
             self.match(node, '+')
         elif self.lookahead == '-':
             self.match(node, '-')
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Addop_sub(node)
@@ -653,8 +694,10 @@ class Parser:
             self.Signed_factor_sub(temp1)
             temp2 = Node("G", node)
             self.G_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Term_sub(node)
@@ -666,9 +709,10 @@ class Parser:
             self.Signed_factor_prime_sub(temp1)
             temp2 = Node("G", node)
             self.G_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.cpl_token)
-            print(self.illigal_error, self.cpl_token)
+
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Term_prime_sub(node)
@@ -679,8 +723,10 @@ class Parser:
             self.Signed_factor_zegond_sub(temp1)
             temp2 = Node("G", node)
             self.G_sub(temp2)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Term_zegond_sub(node)
@@ -694,9 +740,11 @@ class Parser:
             self.G_sub(temp2)
         elif self.lookahead in follow['G']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.G_sub(node)
@@ -714,8 +762,10 @@ class Parser:
             else:
                 temp1 = Node("Factor", node)
                 self.Factor_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Signed_factor_sub(node)
@@ -724,8 +774,10 @@ class Parser:
         if self.lookahead in first['Signed-factor-prime'] or self.lookahead in follow['Signed-factor-prime']:
             temp1 = Node("Factor-prime", node)
             self.Factor_prime_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Signed_factor_prime_sub(node)
@@ -743,8 +795,10 @@ class Parser:
             else:
                 temp1 = Node("Factor-zegond", node)
                 self.Factor_zegond_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Signed_factor_zegond_sub(node)
@@ -761,8 +815,10 @@ class Parser:
             self.Var_call_prime_sub(temp1)
         elif self.cpl_token[0] == 'NUM':
             self.match(node, 'NUM')
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Factor_sub(node)
@@ -776,8 +832,10 @@ class Parser:
         elif self.lookahead in first['Var-call-prime'] or self.lookahead in follow['Var-call-prime']:
             temp1 = Node("Var-prime", node)
             self.Var_prime_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Var_call_prime_sub(node)
@@ -790,9 +848,11 @@ class Parser:
             self.match(node, ']')
         elif self.lookahead in follow['Var-prime']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Var_prime_sub(node)
@@ -805,9 +865,11 @@ class Parser:
             self.match(node, ')')
         elif self.lookahead in follow['Factor-prime']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Factor_prime_sub(node)
@@ -820,8 +882,10 @@ class Parser:
             temp1 = Node("Expression", node)
             self.Expression_sub(temp1)
             self.match(node, ')')
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Factor_zegond_sub(node)
@@ -832,9 +896,11 @@ class Parser:
             self.Arg_list_sub(temp1)
         elif self.lookahead in follow['Args']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Args_sub(node)
@@ -845,8 +911,10 @@ class Parser:
             self.Expression_sub(temp1)
             temp1 = Node("Arg-list-prime", node)
             self.Arg_list_prime_sub(temp1)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Arg_list_sub(node)
@@ -860,9 +928,11 @@ class Parser:
             self.Arg_list_prime_sub(temp1)
         elif self.lookahead in follow['Arg-list-prime']:
             temp = Node("epsilon", node)
+        elif self.lookahead == '$':
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
         else:
-            print(self.illigal_error, self.cpl_token)
+            
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
             self.next_token()
             self.Arg_list_prime_sub(node)
@@ -874,4 +944,6 @@ for pre, fill, node in RenderTree(parser.root):
     print("%s%s" % (pre, node.name))
 
 #with open("syntax_errors.txt", "w") as file:
-print(parser.syn_err_l)
+for l in parser.syn_err_l:
+    print(l)
+#print(parser.syn_err_l)
