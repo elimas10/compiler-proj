@@ -45,8 +45,7 @@ class Parser:
 
     def Program_sub(self, node):
         if self.lookahead in first['Program']:
-            temp = Node("Declaration-list", node)
-            self.Declaration_list_sub(temp)
+            self.Declaration_list_sub(node)
             self.match(node, '$')
         else:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -54,13 +53,17 @@ class Parser:
     def Declaration_list_sub(self, node):
 
         if self.lookahead in first['Declaration']:
-            temp1 = Node("Declaration", parent=node)
-            self.Declaration_sub(temp1)
-            temp2 = Node("Declaration-list", parent=node)
-            self.Declaration_list_sub(temp2)
+            temp = Node("Declaration-list", node)
+
+
+#            temp1 = Node("Declaration", parent=node)
+            self.Declaration_sub(temp)
+ #           temp2 = Node("Declaration-list", parent=node)
+            self.Declaration_list_sub(temp)
             ##
         elif self.lookahead in follow['Declaration']:
-            temp = Node("epsilon", node)
+            temp = Node("Declaration-list", node)
+            temp2= Node("epsilon", temp)
         ## handle tree
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -72,14 +75,15 @@ class Parser:
 
     def Declaration_sub(self, node):
         if self.lookahead in first['Declaration-initial']:
-            temp1 = Node("Declaration-initial", parent=node)
+            temp1 = Node("Declaration", parent=node)
+
+            #temp1 = Node("Declaration-initial", parent=node)
             self.Declaration_initial_sub(temp1)
-            temp2 = Node("Declaration-prime", parent=node)
-            self.Declaration_prime_sub(temp2)
+            #temp2 = Node("Declaration-prime", parent=node)
+            self.Declaration_prime_sub(temp1)
 
         elif self.lookahead in follow['Declaration']:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Declaration")
-
 
         elif self.lookahead == '$':
 
@@ -91,9 +95,11 @@ class Parser:
 
     def Declaration_initial_sub(self, node):
         if self.lookahead in first['Type-specifier']:
-            temp1 = Node("Type-specifier", parent=node)
+            temp1 = Node("Declaration-initial", parent=node)
+
+            #temp1 = Node("Type-specifier", parent=node)
             self.Type_specifier(temp1)
-            self.match(node, 'ID')
+            self.match(temp1, 'ID')
 
         elif self.lookahead in follow['Declaration-initial']:
 
@@ -108,12 +114,15 @@ class Parser:
 
     def Declaration_prime_sub(self, node):
         if self.lookahead in first['Fun-declaration-prime']:
+            temp2 = Node("Declaration-prime", parent=node)
+
             # change node
-            temp1 = Node("Fun-declaration-prime", parent=node)
-            self.Fun_declaration_prime_sub(temp1)
+            #temp1 = Node("Fun-declaration-prime", parent=node)
+            self.Fun_declaration_prime_sub(temp2)
         elif self.lookahead in first['Var-declaration-prime']:
+            temp2 = Node("Declaration-prime", parent=node)
             # change node
-            temp2 = Node("Var-declaration-prime", parent=node)
+            #temp2 = Node("Var-declaration-prime", parent=node)
             self.Var_declaration_prime_sub(temp2)
         elif self.lookahead in follow['Declaration-prime']:
             # missing error
@@ -128,14 +137,17 @@ class Parser:
 
     def Var_declaration_prime_sub(self, node):
         if self.lookahead == ';':
+
+            temp = Node("Var-declaration-prime", parent=node)
             # change node
-            self.match(node, ';')
+            self.match(temp, ';')
         elif self.lookahead == '[':
+            temp = Node("Var-declaration-prime", parent=node)
             # change node
-            self.match(node, '[')
-            self.match(node, 'NUM')
-            self.match(node, ']')
-            self.match(node, ';')
+            self.match(temp, '[')
+            self.match(temp, 'NUM')
+            self.match(temp, ']')
+            self.match(temp, ';')
 
         elif self.lookahead in follow['Var-declaration-prime']:
             # error
@@ -150,11 +162,13 @@ class Parser:
 
     def Fun_declaration_prime_sub(self, node):
         if self.lookahead == '(':
-            self.match(node, '(')
-            temp = Node("Params", node)
+            temp = Node("Fun-declaration-prime", parent=node)
+
+            self.match(temp, '(')
+            #temp = Node("Params", node)
             self.Params_sub(temp)
-            self.match(node, ')')
-            temp = Node("Compound-stmt", node)
+            self.match(temp, ')')
+            #temp = Node("Compound-stmt", node)
             self.Compound_stmt_sub(temp)
 
         elif self.lookahead in follow['Fun-declaration-prime']:
@@ -171,11 +185,15 @@ class Parser:
 
     def Type_specifier(self, node):
         if self.lookahead == 'int':
+
+            temp = Node("Type-specifier", parent=node)
             # change node
-            self.match(node, 'int')
+            self.match(temp, 'int')
         elif self.lookahead == 'void':
+
+            temp = Node("Type-specifier", parent=node)
             # change node
-            self.match(node, 'void')
+            self.match(temp, 'void')
         elif self.lookahead in follow['Type-specifier']:
             # error
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Type-specifier")
@@ -192,17 +210,21 @@ class Parser:
 
     def Params_sub(self, node):   ## check it
         if self.lookahead == 'int':
+
+            temp = Node("Params", parent=node)
             # change node
-            self.match(node, 'int')
-            self.match(node, 'ID')
+            self.match(temp, 'int')
+            self.match(temp, 'ID')
             # call subs of param prime & param list
             self.Param_prime_sub(node)
             self.Param_list(node)
         elif self.lookahead == 'void':
+            temp = Node("Params", parent=node)
 
-            self.match(node, 'void')
+
+            self.match(temp, 'void')
             # call sub of aram-list-void-abtar
-            temp = Node('Param_list_void_abtar', node)
+            #temp = Node('Param_list_void_abtar', node)
             self.Param_list_void_abtar(temp)
         elif self.lookahead in follow['Params']:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Params")
@@ -218,15 +240,18 @@ class Parser:
 
     def Param_list_void_abtar(self, node):
         if self.lookahead in first['Param-list-void-abtar']:
-            self.match(node, "ID")
-            temp = Node("Param-prime", node)
+            temp = Node('Param-list-void-abtar', node)
+
+            self.match(temp, "ID")
+            #temp = Node("Param-prime", node)
             self.Param_prime_sub(temp)
-            temp = Node("Param-list", node)
+            #temp = Node("Param-list", node)
             self.Param_list(temp)
 
         elif self.lookahead in follow['Param-list-void-abtar']:
             # node epsilon
-            temp = Node("epsilon", node)
+            temp = Node('Param-list-void-abtar', node)
+            temp2 = Node("epsilon", temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -238,13 +263,16 @@ class Parser:
 
     def Param_list(self, node):
         if self.lookahead == ',':
-            temp = Node("Param", node)
-            self.Param_sub(temp)
             temp = Node("Param-list", node)
+
+            #temp = Node("Param", node)
+            self.Param_sub(temp)
+            #temp = Node("Param-list", node)
             self.Param_list(temp)
         elif self.lookahead in follow['Param-list']:
             # node epsilon
-            temp = Node("epsilon", node)
+            temp = Node("Param-list", node)
+            temp2 = Node("epsilon", temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -256,9 +284,11 @@ class Parser:
 
     def Param_sub(self, node):
         if self.lookahead in first['Param']:
-            temp = Node("Declaration-initial", node)
+            temp = Node("Param", node)
+
+            #temp = Node("Declaration-initial", node)
             self.Declaration_initial_sub(temp)
-            temp = Node("Param-prime", node)
+            #temp = Node("Param-prime", node)
 
             self.Param_prime_sub(temp)
         elif self.lookahead == '$':
@@ -271,9 +301,10 @@ class Parser:
 
     def Param_prime_sub(self, node):
         if self.lookahead == '[':
+            temp = Node("Param-prime", node)
             # node
-            self.match(node, '[')
-            self.match(node, ']')
+            self.match(temp, '[')
+            self.match(temp, ']')
         elif self.lookahead in follow['Param-prime']:
             #TODO
             print("what?")
@@ -290,13 +321,16 @@ class Parser:
 
     def Compound_stmt_sub(self, node):
         if self.lookahead == '{':
+
+            temp = Node("Compound-stmt", node)
+
             # node
-            self.match(node, '{')
-            temp1 = Node("Declaration-list", node)
-            self.Declaration_list_sub(temp1)
-            temp2 = Node("Statement-list", node)
-            self.Statement_list_sub(temp2)
-            self.match(node, '}')
+            self.match(temp, '{')
+            #temp1 = Node("Declaration-list", node)
+            self.Declaration_list_sub(temp)
+            #temp2 = Node("Statement-list", node)
+            self.Statement_list_sub(temp)
+            self.match(temp, '}')
         elif self.lookahead in follow['Compound-stmt']:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Compound-stmt")
         elif self.lookahead == '$':
@@ -309,14 +343,17 @@ class Parser:
     def Statement_list_sub(self, node):
         if self.lookahead in first['Statement']:
 
-            temp2 = Node("Statement", node)
-            self.Statement_sub(temp2)
 
-            temp1 = Node("Statement-list", node)
-            self.Statement_list_sub(temp1)
+            temp = Node("Statement-list", node)
+
+            self.Statement_sub(temp)
+
+            #temp1 = Node("Statement-list", node)
+            self.Statement_list_sub(temp)
 
         elif self.lookahead in follow['Statement-list']:
-            temp = Node("epsilon", node)
+            temp = Node("Statement-list", node)
+            temp2 = Node("epsilon", temp)
 
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -328,24 +365,25 @@ class Parser:
 
     def Statement_sub(self, node):
         if self.lookahead in first['Statement']:
+            temp = Node("Statement", node)
             if self.lookahead in first['Expression-stmt']:
-                temp2 = Node("Expression-stmt", node)
-                self.Expression_stmt_sub(temp2)
+                #temp2 = Node("Expression-stmt", node)
+                self.Expression_stmt_sub(temp)
             elif self.lookahead in first['Compound-stmt']:
-                temp2 = Node("Compound-stmt", node)
-                self.Compound_stmt_sub(temp2)
+                #temp2 = Node("Compound-stmt", node)
+                self.Compound_stmt_sub(temp)
             elif self.lookahead in first['Selection-stmt']:
-                temp2 = Node("Selection-stmt", node)
-                self.Selection_stmt_sub(temp2)
+                #temp2 = Node("Selection-stmt", node)
+                self.Selection_stmt_sub(temp)
             elif self.lookahead in first['Iteration-stmt']:
-                temp2 = Node("Iteration-stmt", node)
-                self.Iteration_stmt_sub(temp2)
+                #temp2 = Node("Iteration-stmt", node)
+                self.Iteration_stmt_sub(temp)
             elif self.lookahead in first['Return-stmt']:
-                temp2 = Node("Return-stmt", node)
-                self.Return_stmt_sub(temp2)
+                #temp2 = Node("Return-stmt", node)
+                self.Return_stmt_sub(temp)
             elif self.lookahead in first['For-stmt']:
-                temp2 = Node("For-stmt", node)
-                self.For_stmt_sub(temp2)
+                #temp2 = Node("For-stmt", node)
+                self.For_stmt_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -356,15 +394,17 @@ class Parser:
 
     def Expression_stmt_sub(self, node):
         if self.lookahead in first['Expression-stmt']:
+            temp = Node("Expression-stmt", node)
+
             if self.lookahead == ';':
-                self.match(node, ';')
+                self.match(temp, ';')
             elif self.lookahead == 'break':
-                self.match(node, 'break')
-                self.match(node, ';')
+                self.match(temp, 'break')
+                self.match(temp, ';')
             else:
-                temp2 = Node("Expression", node)
-                self.Expression_sub(temp2)
-                self.match(node, ';')
+                #temp2 = Node("Expression", node)
+                self.Expression_sub(temp)
+                self.match(temp, ';')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -375,16 +415,18 @@ class Parser:
 
     def Selection_stmt_sub(self, node):
         if self.lookahead == 'if':
-            self.match(node, 'if')
-            self.match(node, '(')
-            temp1 = Node("Expression", node)
-            self.Expression_sub(temp1)
-            self.match(node, ')')
-            temp2 = Node("Statement", node)
-            self.Statement_sub(temp2)
-            self.match(node, 'else')
-            temp3 = Node("Statement", node)
-            self.Statement_sub(temp3)
+            temp = Node("Selection-stmt", node)
+
+            self.match(temp, 'if')
+            self.match(temp, '(')
+            #temp1 = Node("Expression", node)
+            self.Expression_sub(temp)
+            self.match(temp, ')')
+            #temp2 = Node("Statement", node)
+            self.Statement_sub(temp)
+            self.match(temp, 'else')
+            #temp3 = Node("Statement", node)
+            self.Statement_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -395,13 +437,15 @@ class Parser:
 
     def Iteration_stmt_sub(self, node):
         if self.lookahead == 'while':
-            self.match(node, 'while')
-            self.match(node, '(')
-            temp = Node("Expression", node)
+            temp = Node("Iteration-stmt", node)
+
+            self.match(temp, 'while')
+            self.match(temp, '(')
+            #temp = Node("Expression", node)
             self.Expression_sub(temp)
-            self.match(node, ')')
-            temp3 = Node("Statement", node)
-            self.Statement_sub(temp3)
+            self.match(temp, ')')
+            #temp3 = Node("Statement", node)
+            self.Statement_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -412,8 +456,11 @@ class Parser:
 
     def Return_stmt_sub(self, node):
         if self.lookahead == 'return':
-            self.match(node, 'return')
-            temp = Node("Return-stmt-prime", node)
+
+            temp = Node("Return-stmt", node)
+
+            self.match(temp, 'return')
+            #temp = Node("Return-stmt-prime", node)
             self.Return_stmt_prime_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -425,11 +472,13 @@ class Parser:
 
     def Return_stmt_prime_sub(self, node):
         if self.lookahead == ';':
-            self.match(node, ";")
+            temp = Node("Return-stmt-prime", node)
+            self.match(temp, ";")
         elif self.lookahead in first['Return-stmt-prime']:
-            temp = Node("Expression", node)
+            temp = Node("Return-stmt-prime", node)
+            #temp = Node("Expression", node)
             self.Expression_sub(temp)
-            self.match(node, ';')
+            self.match(temp, ';')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -439,13 +488,15 @@ class Parser:
 
     def For_stmt_sub(self, node):
         if self.lookahead == 'for':
-            self.match(node, 'for')
-            self.match(node, 'ID')
-            self.match(node, '=')
-            temp = Node("Vars", node)
+            temp = Node("For-stmt", node)
+
+            self.match(temp, 'for')
+            self.match(temp, 'ID')
+            self.match(temp, '=')
+            #temp = Node("Vars", node)
             self.Vars_sub(temp)
-            temp2 = Node("Statement", node)
-            self.Statement_sub(temp2)
+            #temp2 = Node("Statement", node)
+            self.Statement_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -456,9 +507,9 @@ class Parser:
     def Vars_sub(self, node):
         if self.lookahead in first['Vars']:
             temp1 = Node("Vars", node)
+
             self.Var_sub(temp1)
-            temp2 = Node("Var-zegond", node)
-            self.Var_zegond_sub(temp2)
+            self.Var_zegond_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -469,13 +520,17 @@ class Parser:
 
     def Var_zegond_sub(self, node):
         if self.lookahead == ',':
-            self.match(node, ',')
-            temp1 = Node("Var", node)
-            self.Var_sub(temp1)
-            temp2 = Node("Var_zegond", node)
-            self.Var_zegond_sub(temp2)
+            temp = Node("Var-zegond", node)
+
+            self.match(temp, ',')
+            #temp1 = Node("Var", node)
+            self.Var_sub(temp)
+            #temp2 = Node("Var_zegond", node)
+            self.Var_zegond_sub(temp)
+
         elif self.lookahead in follow['Var-zegond']:
-            temp = Node("epsilon", node)
+            temp = Node("Var-zegond", node)
+            temp2 = Node("epsilon", temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -487,9 +542,11 @@ class Parser:
 
     def Var_sub(self, node):
         if self.cpl_token[0] == 'ID':
-            self.match(node, 'ID')
-            temp1 = Node("Var-prime", node)
-            self.Var_prime_sub(temp1)
+            temp = Node("Var", node)
+
+            self.match(temp, 'ID')
+            #temp1 = Node("Var-prime", node)
+            self.Var_prime_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -500,11 +557,16 @@ class Parser:
 
     def Expression_sub(self, node):
         if self.cpl_token[0] == 'ID':
-            self.match(node, 'ID')
-            temp1 = Node("B", node)
-            self.B_sub(temp1)
+
+            temp = Node("Expression", node)
+
+            self.match(temp, 'ID')
+            #temp1 = Node("B", node)
+            self.B_sub(temp)
         elif self.lookahead in first['Expression']:
-            temp2 = Node("Simple-expression-zegond", node)
+            temp2 = Node("Expression", node)
+
+            #temp2 = Node("Simple-expression-zegond", node)
             self.Simple_expression_zegond(temp2)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -515,19 +577,24 @@ class Parser:
 
     def B_sub(self, node):
         if self.lookahead == '=':
-            self.match(node, '=')
-            temp2 = Node("Expression", node)
-            self.Expression_sub(temp2)
+            temp1 = Node("B", node)
+
+            self.match(temp1, '=')
+            #temp2 = Node("Expression", node)
+            self.Expression_sub(temp1)
         elif self.lookahead == '[':
-            self.match(node, '[')
-            temp2 = Node("Expression", node)
-            self.Expression_sub(temp2)
-            self.match(node, ']')
-            temp2 = Node("H", node)
-            self.H_sub(temp2)
+            temp1 = Node("B", node)
+
+            self.match(temp1, '[')
+            #temp2 = Node("Expression", node)
+            self.Expression_sub(temp1)
+            self.match(temp1, ']')
+            #temp2 = Node("H", node)
+            self.H_sub(temp1)
         elif self.lookahead in first['B'] or self.lookahead in follow['B']:
-            temp2 = Node("Simple-expression-prime", node)
-            self.Simple_expression_prime_sub(temp2)
+            temp1 = Node("B", node)
+            #temp2 = Node("Simple-expression-prime", node)
+            self.Simple_expression_prime_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -538,15 +605,19 @@ class Parser:
 
     def H_sub(self, node):
         if self.lookahead == '=':
-            self.match(node, '=')
-            temp2 = Node("Expression", node)
+            temp2 = Node("H", node)
+
+            self.match(temp2, '=')
+            #temp2 = Node("Expression", node)
             self.Expression_sub(temp2)
         elif self.lookahead in first['H'] or self.lookahead in follow['H']:
-            temp2 = Node("G", node)
+            temp2 = Node("H", node)
+
+            #temp2 = Node("G", node)
             self.G_sub(temp2)
-            temp2 = Node("D", node)
+            #temp2 = Node("D", node)
             self.D_sub(temp2)
-            temp2 = Node("C", node)
+            #temp2 = Node("C", node)
             self.C_sub(temp2)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -558,10 +629,12 @@ class Parser:
 
     def Simple_expression_zegond(self, node):
         if self.lookahead in first['Simple-expression-zegond']:
-            temp1 = Node("Additive-expression-zegond", node)
-            self.Additive_expression_zegond_sub(temp1)
-            temp2 = Node("C", node)
-            self.C_sub(temp2)
+            temp = Node("Simple-expression", node)
+
+            #temp1 = Node("Additive-expression-zegond", node)
+            self.Additive_expression_zegond_sub(temp)
+            #temp2 = Node("C", node)
+            self.C_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -572,10 +645,12 @@ class Parser:
 
     def Simple_expression_prime_sub(self, node):
         if self.lookahead in first['Simple-expression-prime'] or self.lookahead in follow['Simple-expression-prime']:
-            temp1 = Node("Additive-expression-prime", node)
-            self.Additive_expression_prime_sub(temp1)
-            temp1 = Node("C", node)
-            self.C_sub(temp1)
+            temp = Node("Simple-expression", node)
+
+#            temp1 = Node("Additive-expression-prime", node)
+            self.Additive_expression_prime_sub(temp)
+ #           temp1 = Node("C", node)
+            self.C_sub(temp)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -586,12 +661,15 @@ class Parser:
 
     def C_sub(self, node):
         if self.lookahead in first['C']:
-            temp1 = Node("Relop", node)
+            temp1 = Node("C", node)
+
+            #temp1 = Node("Relop", node)
             self.Relop_sub(temp1)
-            temp1 = Node("Additive-expression", node)
+            #temp1 = Node("Additive-expression", node)
             self.Additive_expression(temp1)
         elif self.lookahead in follow['C']:
-            temp = Node("epsilon", node)
+            temp1 = Node("C", node)
+            temp = Node("epsilon", temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -603,9 +681,11 @@ class Parser:
 
     def Relop_sub(self, node):
         if self.lookahead == '<':
-            self.match(node, '<')
+            temp1 = Node("Relop", node)
+            self.match(temp1, '<')
         elif self.lookahead == "==":
-            self.match(node, '==')
+            temp1 = Node("Relop", node)
+            self.match(temp1, '==')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -615,10 +695,12 @@ class Parser:
 
     def Additive_expression(self, node):
         if self.lookahead in first['Additive-expression']:
-            temp1 = Node("Term", node)
+            temp1 = Node("Additive-expression", node)
+
+            #temp1 = Node("Term", node)
             self.Term_sub(temp1)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
+            #temp2 = Node("D", node)
+            self.D_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -629,10 +711,12 @@ class Parser:
 
     def Additive_expression_prime_sub(self, node):
         if self.lookahead in first['Additive-expression-prime'] or self.lookahead in follow['Additive-expression-prime']:
-            temp1 = Node("Term-prime", node)
+            temp1 = Node("Additive-expression-prime", node)
+
+            #temp1 = Node("Term-prime", node)
             self.Term_prime_sub(temp1)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
+            #temp2 = Node("D", node)
+            self.D_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -643,10 +727,12 @@ class Parser:
 
     def Additive_expression_zegond_sub(self, node):
         if self.lookahead in first['Additive-expression-zegond']:
-            temp1 = Node("Term-zegond", node)
+            temp1 = Node("Additive-expression-zegond", node)
+
+            #temp1 = Node("Term-zegond", node)
             self.Term_zegond_sub(temp1)
-            temp2 = Node("D", node)
-            self.D_sub(temp2)
+            #temp2 = Node("D", node)
+            self.D_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -657,15 +743,18 @@ class Parser:
 
     def D_sub(self, node):
         if self.lookahead in first['D']:
-            temp1 = Node("Addop", node)
-            self.Addop_sub(temp1)
-            temp2 = Node("Term", node)
-            self.Term_sub(temp2)
-            temp3 = Node("D", node)
-            self.D_sub(temp3)
+            temp = Node("D", node)
+
+            #temp1 = Node("Addop", node)
+            self.Addop_sub(temp)
+            #temp2 = Node("Term", node)
+            self.Term_sub(temp)
+            #temp3 = Node("D", node)
+            self.D_sub(temp)
 
         elif self.lookahead in follow['D']:
-            temp = Node("epsilon", node)
+            temp2 = Node("D", node)
+            temp = Node("epsilon", temp2)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -677,9 +766,11 @@ class Parser:
 
     def Addop_sub(self, node):
         if self.lookahead == '+':
-            self.match(node, '+')
+            temp1 = Node("Addop", node)
+            self.match(temp1, '+')
         elif self.lookahead == '-':
-            self.match(node, '-')
+            temp1 = Node("Addop", node)
+            self.match(temp1, '-')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -690,9 +781,10 @@ class Parser:
 
     def Term_sub(self, node):
         if self.lookahead in first['Term']:
-            temp1 = Node("Signed-factor", node)
-            self.Signed_factor_sub(temp1)
-            temp2 = Node("G", node)
+            temp2 = Node("Term", node)
+            #temp1 = Node("Signed-factor", node)
+            self.Signed_factor_sub(temp2)
+            #temp2 = Node("G", node)
             self.G_sub(temp2)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -705,10 +797,11 @@ class Parser:
     def Term_prime_sub(self, node):
         # ?????????????????????????????
         if self.lookahead in first['Term-prime'] or self.lookahead in follow['Term-prime']:
-            temp1 = Node("Signed-factor-prime", node)
+            temp1 = Node("Term-prime", node)
+
             self.Signed_factor_prime_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
+            #temp2 = Node("G", node)
+            self.G_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -719,10 +812,12 @@ class Parser:
 
     def Term_zegond_sub(self, node):
         if self.lookahead in first['Term-zegond']:
-            temp1 = Node("Signed-factor-zegond", node)
+            temp1 = Node("Term-zegond", node)
+
+            #temp1 = Node("Signed-factor-zegond", node)
             self.Signed_factor_zegond_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
+            #temp2 = Node("G", node)
+            self.G_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -733,13 +828,16 @@ class Parser:
 
     def G_sub(self, node):
         if self.lookahead == '*':
-            self.match(node, '*')
-            temp1 = Node("Signed-factor", node)
-            self.Signed_factor_sub(temp1)
-            temp2 = Node("G", node)
-            self.G_sub(temp2)
+            temp = Node("G", node)
+
+            self.match(temp, '*')
+            #temp1 = Node("Signed-factor", node)
+            self.Signed_factor_sub(temp)
+            #temp2 = Node("G", node)
+            self.G_sub(temp)
         elif self.lookahead in follow['G']:
-            temp = Node("epsilon", node)
+            temp2 = Node("G", node)
+            temp = Node("epsilon", temp2)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -751,16 +849,18 @@ class Parser:
 
     def Signed_factor_sub(self, node):
         if self.lookahead in first['Signed-factor']:
+            temp1 = Node("Signed-factor", node)
+
             if self.lookahead == '+':
-                self.match(node, '+')
-                temp1 = Node("Factor", node)
+                self.match(temp1, '+')
+                #temp1 = Node("Factor", node)
                 self.Factor_sub(temp1)
             elif self.lookahead == '-':
-                self.match(node, '-')
-                temp1 = Node("Factor", node)
+                self.match(temp1, '-')
+                #temp1 = Node("Factor", node)
                 self.Factor_sub(temp1)
             else:
-                temp1 = Node("Factor", node)
+                #temp1 = Node("Factor", node)
                 self.Factor_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -772,7 +872,8 @@ class Parser:
 
     def Signed_factor_prime_sub(self, node):
         if self.lookahead in first['Signed-factor-prime'] or self.lookahead in follow['Signed-factor-prime']:
-            temp1 = Node("Factor-prime", node)
+            temp1 = Node("Signed-factor-prime", node)
+            #temp1 = Node("Factor-prime", node)
             self.Factor_prime_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -784,16 +885,18 @@ class Parser:
 
     def Signed_factor_zegond_sub(self, node):
         if self.lookahead in first["Signed-factor-zegond"]:
+            temp1 = Node("Signed-factor-zegond", node)
+
             if self.lookahead == '+':
-                self.match(node, '+')
-                temp1 = Node("Factor", node)
+                self.match(temp1, '+')
+                #temp1 = Node("Factor", node)
                 self.Factor_sub(temp1)
             elif self.lookahead == '-':
-                self.match(node, '-')
-                temp1 = Node("Factor", node)
+                self.match(temp1, '-')
+                #temp1 = Node("Factor", node)
                 self.Factor_sub(temp1)
             else:
-                temp1 = Node("Factor-zegond", node)
+                #temp1 = Node("Factor-zegond", node)
                 self.Factor_zegond_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -805,16 +908,20 @@ class Parser:
 
     def Factor_sub(self, node):
         if self.lookahead == '(':
-            self.match(node, '(')
-            temp1 = Node("Expression", node)
+            temp1 = Node("Factor", node)
+            self.match(temp1, '(')
+            #temp1 = Node("Expression", node)
             self.Expression_sub(temp1)
-            self.match(node, ')')
+            self.match(temp1, ')')
         elif self.cpl_token[0] == "ID":
-            self.match(node, "ID")
-            temp1 = Node("Var-call-prime", node)
+            temp1 = Node("Factor", node)
+
+            self.match(temp1, "ID")
+            #temp1 = Node("Var-call-prime", node)
             self.Var_call_prime_sub(temp1)
         elif self.cpl_token[0] == 'NUM':
-            self.match(node, 'NUM')
+            temp1 = Node("Factor", node)
+            self.match(temp1, 'NUM')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -825,12 +932,14 @@ class Parser:
 
     def Var_call_prime_sub(self, node):
         if self.lookahead == '(':
-            self.match(node, '(')
-            temp1 = Node("Args", node)
+            temp1 = Node("Var-call-prime", node)
+            self.match(temp1, '(')
+            #temp1 = Node("Args", node)
             self.Args_sub(temp1)
-            self.match(node, ')')
+            self.match(temp1, ')')
         elif self.lookahead in first['Var-call-prime'] or self.lookahead in follow['Var-call-prime']:
-            temp1 = Node("Var-prime", node)
+            temp1 = Node("Var-call-prime", node)
+            #temp1 = Node("Var-prime", node)
             self.Var_prime_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -842,12 +951,15 @@ class Parser:
 
     def Var_prime_sub(self, node):
         if self.lookahead == '[':
-            self.match(node, '[')
-            temp1 = Node("Expression", node)
+            temp1 = Node("Var-prime", node)
+
+            self.match(temp1, '[')
+            #temp1 = Node("Expression", node)
             self.Expression_sub(temp1)
-            self.match(node, ']')
+            self.match(temp1, ']')
         elif self.lookahead in follow['Var-prime']:
-            temp = Node("epsilon", node)
+            temp1 = Node("Var-prime", node)
+            temp = Node("epsilon", temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -859,12 +971,15 @@ class Parser:
 
     def Factor_prime_sub(self, node):
         if self.lookahead == '(':
-            self.match(node, '(')
-            temp1 = Node("Args", node)
-            self.Args_sub(temp1)
-            self.match(node, ')')
+            temp = Node("Factor-prime", node)
+
+            self.match(temp, '(')
+#            temp1 = Node("Args", node)
+            self.Args_sub(temp)
+            self.match(temp, ')')
         elif self.lookahead in follow['Factor-prime']:
-            temp = Node("epsilon", node)
+            temp1 = Node("Factor-prime", node)
+            temp = Node("epsilon", temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -876,12 +991,16 @@ class Parser:
 
     def Factor_zegond_sub(self, node):
         if self.cpl_token[0] == 'NUM':
-            self.match(node, 'NUM')
+            temp = Node("Factor-zegond", node)
+
+            self.match(temp, 'NUM')
         elif self.lookahead == '(':
-            self.match(node, '(')
-            temp1 = Node("Expression", node)
+            temp1 = Node("Factor-zegond", node)
+
+            self.match(temp1, '(')
+#            temp1 = Node("Expression", node)
             self.Expression_sub(temp1)
-            self.match(node, ')')
+            self.match(temp1, ')')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -892,10 +1011,11 @@ class Parser:
 
     def Args_sub(self, node):
         if self.lookahead in first['Args']:
-            temp1 = Node("Arg-list", node)
+            temp1 = Node("Args", node)
             self.Arg_list_sub(temp1)
         elif self.lookahead in follow['Args']:
-            temp = Node("epsilon", node)
+            temp1 = Node("Args", node)
+            temp = Node("epsilon", temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
@@ -907,9 +1027,10 @@ class Parser:
 
     def Arg_list_sub(self, node):
         if self.lookahead in first['Arg-list']:
-            temp1 = Node("Expression", node)
+            temp1 = Node("Args-list", node)
+
             self.Expression_sub(temp1)
-            temp1 = Node("Arg-list-prime", node)
+            #temp1 = Node("Arg-list-prime", node)
             self.Arg_list_prime_sub(temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
@@ -921,13 +1042,16 @@ class Parser:
 
     def Arg_list_prime_sub(self, node):
         if self.lookahead in first['Arg-list-prime']:
-            self.match(node, ',')
-            temp1 = Node("Expression", node)
+            temp1 = Node("Args-list-prime", node)
+
+            self.match(temp1, ',')
+            #temp1 = Node("Expression", node)
             self.Expression_sub(temp1)
-            temp1 = Node("Arg-list-prime", node)
+            #temp1 = Node("Arg-list-prime", node)
             self.Arg_list_prime_sub(temp1)
         elif self.lookahead in follow['Arg-list-prime']:
-            temp = Node("epsilon", node)
+            temp1 = Node("Args-list-prime", node)
+            temp = Node("epsilon", temp1)
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
