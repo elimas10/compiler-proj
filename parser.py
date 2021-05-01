@@ -208,7 +208,7 @@ class Parser:
             #
             self.Type_specifier(node)
 
-    def Params_sub(self, node):   ## check it
+    def Params_sub(self, node):
         if self.lookahead == 'int':
 
             temp = Node("Params", parent=node)
@@ -413,6 +413,9 @@ class Parser:
                 self.match(temp, ';')
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
+        elif self.lookahead in follow['Expression-stmt']:
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Expression-stmt")
+
         else:
 
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -433,6 +436,8 @@ class Parser:
             self.match(temp, 'else')
             #temp3 = Node("Statement", node)
             self.Statement_sub(temp)
+        elif self.lookahead in follow['Selection-stmt']:
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Seleection-stmt")
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -452,6 +457,8 @@ class Parser:
             self.match(temp, ')')
             #temp3 = Node("Statement", node)
             self.Statement_sub(temp)
+        elif self.lookahead in follow['Iteration-stmt']:
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Iteration-stmt")
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -468,6 +475,9 @@ class Parser:
             self.match(temp, 'return')
             #temp = Node("Return-stmt-prime", node)
             self.Return_stmt_prime_sub(temp)
+
+        elif self.lookahead in follow['Return-stmt']:
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Return-stmt")
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -571,18 +581,21 @@ class Parser:
             self.Var_sub(node)
 
     def Expression_sub(self, node):
-        if self.cpl_token[0] == 'ID':
+       # if self.cpl_token[0] == 'ID':
+        if self.lookahead in first['Simple-expression-zegond']:
 
             temp = Node("Expression", node)
-
+            self.Simple_expression_zegond(temp)
+        elif self.lookahead == 'ID':
+            temp = Node("Expression", node)
             self.match(temp, 'ID')
             #temp1 = Node("B", node)
             self.B_sub(temp)
-        elif self.lookahead in first['Expression']:
-            temp2 = Node("Expression", node)
+        # elif self.lookahead in follow['Expression']:
+        #     temp2 = Node("Expression", node)
 
             #temp2 = Node("Simple-expression-zegond", node)
-            self.Simple_expression_zegond(temp2)
+           # self.Simple_expression_zegond(temp2)
         elif self.lookahead in follow['Expression']:
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Expression")
         elif self.lookahead == '$':
@@ -608,7 +621,7 @@ class Parser:
             self.match(temp1, ']')
             #temp2 = Node("H", node)
             self.H_sub(temp1)
-        elif self.lookahead in first['B'] or self.lookahead in follow['B']:
+        elif self.lookahead in self.lookahead in follow['B'] or self.lookahead in first['Simple-expression-prime']:
             temp1 = Node("B", node)
             #temp2 = Node("Simple-expression-prime", node)
             self.Simple_expression_prime_sub(temp1)
@@ -645,18 +658,19 @@ class Parser:
             self.H_sub(node)
 
     def Simple_expression_zegond(self, node):
-        if self.lookahead in first['Simple-expression-zegond']:
-            temp = Node("Simple-expression", node)
+        if self.lookahead in first['Additive-expression-zegond']:
+            temp = Node("Simple-expression-zegond", node)
 
             #temp1 = Node("Additive-expression-zegond", node)
             self.Additive_expression_zegond_sub(temp)
             #temp2 = Node("C", node)
             self.C_sub(temp)
+        elif self.lookahead in follow['Simple-expression-zegond']:
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, Missing Simple-expression-zegnod")
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
 
-        elif self.lookahead in follow['Simple-expression-zegond']:
-            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, Missing Simple-expression-zegnod")
+
         else:
             
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -1103,7 +1117,7 @@ class Parser:
             self.Arg_list_prime_sub(node)
 
 
-parser = Parser('./input.txt')
+parser = Parser('/Users/macbookpro/Downloads/PA2_Resources/T10/input.txt')
 
 for pre, fill, node in RenderTree(parser.root):
     print("%s%s" % (pre, node.name))
