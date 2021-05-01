@@ -1,4 +1,5 @@
-follow = {'Program': ['$'],
+follow = {
+          'Program': ['$'],
           'Declaration-list': ['$', 'ID', ';', 'NUM', '(', '{', '}', 'break', 'if', 'while', 'return', 'for', '+', '-'],
           'Declaration': ['$', 'ID', ';', 'NUM', '(', 'int', 'void', '{', '}', 'break', 'if', 'while', 'return', 'for',
                           '+', '-'],
