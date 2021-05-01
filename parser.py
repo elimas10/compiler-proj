@@ -58,15 +58,15 @@ class Parser:
 
 #            temp1 = Node("Declaration", parent=node)
             self.Declaration_sub(temp)
- #           temp2 = Node("Declaration-list", parent=node)
+           # temp2 = Node("Declaration-list", parent=node)
             self.Declaration_list_sub(temp)
             ##
         elif self.lookahead in follow['Declaration']:
             temp = Node("Declaration-list", node)
             temp2= Node("epsilon", temp)
-        ## handle tree
-        elif self.lookahead == '$':
-            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
+
+        # elif self.lookahead == '$':
+        #     self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
 
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, illegal " + self.lookahead)
@@ -1087,6 +1087,9 @@ class Parser:
             self.Expression_sub(temp1)
             #temp1 = Node("Arg-list-prime", node)
             self.Arg_list_prime_sub(temp1)
+        elif self.lookahead in follow['Arg-list']:
+            self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, missing Arg-list")
+
         elif self.lookahead == '$':
             self.syn_err_l.append(str(self.my_scanner.line_num) + ": syntax error, unexpected EOF")
         else:
@@ -1117,7 +1120,7 @@ class Parser:
             self.Arg_list_prime_sub(node)
 
 
-parser = Parser('/Users/macbookpro/Downloads/PA2_Resources/T10/input.txt')
+parser = Parser('/Users/macbookpro/Downloads/PA2_Resources/T5/input.txt')
 
 for pre, fill, node in RenderTree(parser.root):
     print("%s%s" % (pre, node.name))
