@@ -1,10 +1,10 @@
-from compiler import Scanner
+from scanner import Scanner
 from First import first
 from Follow import follow
 from anytree import Node, RenderTree
 
 
-class Parser:
+class Parser_:
     my_scanner = None
     lookahead = None
     cpl_token = None
@@ -1120,23 +1120,5 @@ class Parser:
             self.Arg_list_prime_sub(node)
 
 
-parser = Parser('/Users/macbookpro/Downloads/PA2_Resources/T5/input.txt')
 
-for pre, fill, node in RenderTree(parser.root):
-    print("%s%s" % (pre, node.name))
-
-
-with open("parse_tree.txt", 'w', encoding='utf-8') as file:    # parse_tree file
-    for pre, _, node in RenderTree(parser.root):
-        file.write("%s%s\n" % (pre, node.name))
-
-
-
-with open("syntax_errors.txt", "w") as file:        # syntax errors file
-    if len(parser.syn_err_l) == 0:
-        file.write("There is no syntax error.\n")
-    else:
-
-        for l in parser.syn_err_l:
-              file.write(l+"\n")
 #print(parser.syn_err_l)
